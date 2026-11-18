@@ -43,8 +43,8 @@ Survive endless waves of monsters, protect your statue, earn souls and gold, and
 
 | Role   | Username | Password |
 |--------|----------|----------|
-| Admin  | `ADMIN_USERNAME` | `ADMIN_PASSWORD` |
-| Player | `PLAYER_USERNAME` | `PLAYER_PASSWORD` |
+| Admin  | `admin` | `Admin@123` |
+| Player | `N/A` | `N/A` |
 
 (Replace with the real login details before submitting.)
 

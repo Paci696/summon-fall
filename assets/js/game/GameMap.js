@@ -134,7 +134,7 @@ export const MAPS = {
                 this.drawTile(ctx, art, wave, tx, ty, tx * TILE - ox, ty * TILE - oy);
             }
         }
-        this.drawMarkers(ctx, art, ox, oy);
+        this.drawMarkers(ctx, art, ox, oy, camera.viewW, camera.viewH);
     }
 
     drawTile(ctx, art, wave, tx, ty, sx, sy) {
@@ -165,12 +165,12 @@ export const MAPS = {
     }
 
     // Monster nests. (The statue is drawn by Base.js and the mines by GoldMine.js.)
-    drawMarkers(ctx, art, ox, oy) {
+    drawMarkers(ctx, art, ox, oy, viewW = 640, viewH = 360) {
         const pulse = 0.6 + 0.4 * Math.sin(performance.now() / 350);
         for (const n of this.nests) {
             const cx = n.tx * TILE + TILE / 2 - ox;
             const cy = n.ty * TILE + TILE / 2 - oy;
-            if (cx < -90 || cx > 730 || cy < -90 || cy > 450) continue;
+            if (cx < -90 || cx > viewW + 90 || cy < -90 || cy > viewH + 90) continue;
             ctx.drawImage(art.nest, Math.round(cx - 32), Math.round(cy - 32));
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';

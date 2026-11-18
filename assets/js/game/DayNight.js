@@ -2,7 +2,7 @@
 import { VIEW_W, VIEW_H } from './Game.js';
 import { TILE, TileType } from './GameMap.js';
 
-const DAY = 120;        // seconds of full daylight //120 default
+const DAY = 120;        // seconds of full daylight
 const DUSK = 15;        // fade into night
 const NIGHT = 60;       // full night
 const DAWN = 15;        // fade back to day
@@ -99,6 +99,22 @@ export class DayNight {
         }
     }
 
+    lightSprite(r) {
+        this.lights = this.lights || {};
+        if (!this.lights[r]) {
+            const cv = document.createElement('canvas');
+            cv.width = cv.height = r * 2;
+            const x = cv.getContext('2d');
+            const grad = x.createRadialGradient(r, r, r * 0.15, r, r, r);
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            x.fillStyle = grad;
+            x.fillRect(0, 0, r * 2, r * 2);
+            this.lights[r] = cv;
+        }
+        return this.lights[r];
+    }
+
     // dark blue layer with warm light holes around the statue and your hero
     draw(ctx) {
         if (this.dark <= 0.01) return;
@@ -111,11 +127,9 @@ export class DayNight {
         const light = (wx, wy, r) => {
             const s = g.camera.worldToScreen(wx, wy);
             if (s.x < -r || s.x > VIEW_W + r || s.y < -r || s.y > VIEW_H + r) return;
-            const grad = c.createRadialGradient(s.x, s.y, r * 0.15, s.x, s.y, r);
-            grad.addColorStop(0, 'rgba(0,0,0,' + (0.95 * this.dark) + ')');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            c.fillStyle = grad;
-            c.fillRect(s.x - r, s.y - r, r * 2, r * 2);
+            c.globalAlpha = 0.95 * this.dark;
+            c.drawImage(this.lightSprite(r), Math.round(s.x - r), Math.round(s.y - r));     // pre-drawn glow, no gradient per frame
+            c.globalAlpha = 1;
         };
         light(g.base.x, g.base.y, 150);
         if (g.heroUnit && g.heroUnit.alive) light(g.heroUnit.x, g.heroUnit.y, 80);

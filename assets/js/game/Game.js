@@ -27,8 +27,8 @@ const RAISE_RANGE = 260;      // Necromancer: kills this close to you can rise
 const RAISE_RUN_CAP = 40;     // most undead you can raise in one run
 const RAISE_LIFE = 35;        // seconds before a raised unit crumbles
 
-export const VIEW_W = 640;
-export const VIEW_H = 360;
+export const VIEW_W = 960;   // was 640x360: a bigger view makes every HUD element smaller on screen
+export const VIEW_H = 540;
 const PAN_SPEED = 360;
 const EDGE_SIZE = 10;
 const START_GOLD = 200;
@@ -412,14 +412,15 @@ export class Game {
         }
     }
 
+    // compact panel just left of the minimap (the stance buttons Z X C sit above the minimap, so nothing is covered)
     heroRect() {
-        return { x: VIEW_W - 152, y: 186, w: 144, h: 80 };
+        return { x: VIEW_W - 152 - 8 - 132, y: VIEW_H - 8 - 70, w: 132, h: 70 };
     }
 
     heroButtons() {
         const r = this.heroRect();
         const out = [];
-        for (let i = 0; i < 3; i++) out.push({ slot: i, x: r.x + 4 + i * 46, y: r.y + 34, w: 42, h: 42 });
+        for (let i = 0; i < 3; i++) out.push({ slot: i, x: r.x + 4 + i * 42, y: r.y + 30, w: 38, h: 38 });
         return out;
     }
 
@@ -643,11 +644,11 @@ export class Game {
             ctx.fillText(Math.ceil(h.hp) + '/' + Math.ceil(this.maxHpOf(h)), bx + 2, by + 6);
             if (h.isNecro) {
                 ctx.fillStyle = '#7fe08a';
-                ctx.fillText('UNDEAD ' + this.undeadCount() + '/' + h.maxUndead, bx + 60, by + 6);
+                ctx.fillText('UNDEAD ' + this.undeadCount() + '/' + h.maxUndead, bx + 40, by + 6);
             }
             if (h.wolfT > 0) {
                 ctx.fillStyle = '#ff7a5a';
-                ctx.fillText('WOLF ' + Math.ceil(h.wolfT) + 's', bx + 60, by + 6);
+                ctx.fillText('WOLF ' + Math.ceil(h.wolfT) + 's', bx + 40, by + 6);
             }
         } else {
             ctx.fillStyle = '#ff8080';
@@ -667,14 +668,14 @@ export class Game {
             const col = typeColor[a.ability_type] || '#fff';
             ctx.fillStyle = 'rgba(30, 26, 60, 0.95)';
             ctx.fillRect(b.x, b.y, b.w, b.h);
-            this.drawAbilityIcon(ctx, b.x + b.w / 2, b.y + 18, a.ability_type, ready ? col : '#666');
+            this.drawAbilityIcon(ctx, b.x + b.w / 2, b.y + 16, a.ability_type, ready ? col : '#666');
             if (h && cd > 0) {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
                 ctx.fillRect(b.x, b.y, b.w, b.h * (cd / cdMax));
                 ctx.fillStyle = '#fff';
                 ctx.font = '11px monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText(String(Math.ceil(cd)), b.x + b.w / 2, b.y + 22);
+                ctx.fillText(String(Math.ceil(cd)), b.x + b.w / 2, b.y + 20);
             }
             ctx.strokeStyle = this.heroAiming === b.slot ? '#ffffff' : (ready ? col : '#555');
             ctx.lineWidth = this.heroAiming === b.slot ? 2 : 1;
@@ -685,7 +686,7 @@ export class Game {
             ctx.fillText(HERO_KEYS[b.slot].replace('Key', ''), b.x + 3, b.y + 10);
             ctx.textAlign = 'center';
             ctx.fillStyle = ready ? '#ffe9a0' : '#888';
-            ctx.font = '7px monospace';
+            ctx.font = '6px monospace';
             ctx.fillText(a.name.length > 10 ? a.name.slice(0, 10) : a.name, b.x + b.w / 2, b.y + b.h - 3);
         }
 
@@ -1410,7 +1411,7 @@ export class Game {
         this.drawMeteors(ctx);
         this.drawDragBox(ctx);
         if (this.dayNight) this.dayNight.draw(ctx);
-        ctx.drawImage(getArt().vignette, 0, 0);
+        ctx.drawImage(getArt().vignette, 0, 0, VIEW_W, VIEW_H);
         this.minimap.draw(ctx);
         this.units.forEach((u) => this.minimap.dotWorld(ctx, u.x, u.y, u.faction === 'player' ? '#ffffff' : '#ff3030'));
         this.drawThreatArrows(ctx);

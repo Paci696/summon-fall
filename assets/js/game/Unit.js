@@ -5,6 +5,7 @@ import { SpriteSkin } from './SpriteSkin.js';
 import { getUnitSheet, getBossSheet } from './UnitArt.js';
 import { getHeroSheet } from './HeroArt.js';
 import { getNightSheet } from './NightArt.js';
+import { rankSheet, tintSheet } from './RankArt.js';
 
 const LOOKS = {
     miner:         { shape: 'circle',   color: '#e0c040' },
@@ -78,6 +79,10 @@ export class Unit extends Entity {
             cell = gen.cell;
         }
         if (!source || !spot) return; // no sprite at all: keep the placeholder shape
+        // colour variants are baked ONCE here (drawing with ctx.filter every frame made the game lag)
+        if (this.isUndead) source = tintSheet(source, UNDEAD_FILTER);
+        else if (this.faction === 'player' && this.rank > 0 && !String(this.stats.sprite_key).startsWith('hero_')) source = rankSheet(source, cell, this.rank);
+        else if (this.faction === 'mob' && this.tier) source = tintSheet(source, TIER_FILTERS[((this.tier - 1) % 4) + 1]);
         this.animator = new SpriteSkin(source, cell, spot, this.classType === 'slime');
     }
     canFight() { return true; }
@@ -346,14 +351,15 @@ export class Unit extends Entity {
             ctx.fill();
         }
 
-        const tint = this.isUndead ? UNDEAD_FILTER : this.faction === 'player'
-            ? (RANK_FILTERS[this.rank] || '')
-            : (this.tier ? TIER_FILTERS[((this.tier - 1) % 4) + 1] : '');
-        const filter = ((this.hitFlash > 0 ? 'brightness(2.5) ' : '') + (this.healGlow > 0 ? 'brightness(1.3) ' : '') + tint).trim();
-        if (filter) { ctx.save(); ctx.filter = filter; }
         const drewSprite = this.animator && this.animator.draw(ctx, s.x, feetY, this.facing < 0);
         if (!drewSprite) this.drawShape(ctx, s.x, feetY);
-        if (filter) ctx.restore();
+        else if (this.hitFlash > 0) {                  // hit flash: draw the sprite again, glowing (cheap, no filter)
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = Math.min(0.7, this.hitFlash * 4);
+            this.animator.draw(ctx, s.x, feetY, this.facing < 0);
+            ctx.restore();
+        }
         this.drawExtras(ctx, s.x, feetY);
         const top = drewSprite ? this.animator.height : 2 * r;
         this.drawHpBar(ctx, s.x, feetY - top - 6);

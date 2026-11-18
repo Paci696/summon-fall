@@ -18,7 +18,7 @@ $config = ['baseUrl' => BASE_URL, 'mode' => $mode, 'username' => $currentUser->g
 </head>
 <body class="game-page">
     <div id="stage">
-        <canvas id="game" width="640" height="360"></canvas>
+        <canvas id="game" width="960" height="540"></canvas>
     </div>
     <a class="back" href="<?= BASE_URL ?>/views/menu.php">&larr; Menu</a>
     <div id="error" hidden></div>

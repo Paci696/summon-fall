@@ -1,0 +1,23 @@
+# Local environment / secrets
+.env
+config/local.php
+config/database.local.php
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs, caches, uploads
+*.log
+logs/
+cache/
+tmp/
+node_modules/
+
+# Local backups and scratch files
+*.bak
+*.zip
+*.rar

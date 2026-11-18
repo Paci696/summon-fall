@@ -64,14 +64,15 @@ Survive endless waves of monsters, protect your statue, earn souls and gold, and
 
 ```
 summon-fall/
-|-- config/        database settings and constants (BASE_URL, DEBUG)
+|-- api/           JSON endpoints used by the game (units, score, run start)
+|-- assets/        css, js (game engine, ES modules), sprites
 |-- classes/       PHP classes (Model, Unit and its subclasses, Hero and its subclasses,
 |                  Item, Inventory, Skill, Score, User, Database, Validator, Csrf, ...)
-|-- includes/      header, footer, authentication checks
-|-- adm/           admin panel (CRUD pages, menu)
-|-- out/           player-facing pages and JSON API (play, skills, heroes, leaderboard)
-|-- assets/        css, js (game engine, ES modules), sprites
+|-- config/        database settings and constants (BASE_URL, DEBUG)
 |-- database/      summonfall_export.sql (schema + sample data)
+|-- includes/      header, footer, authentication checks
+|-- tests/         test scripts
+|-- views/         pages (player pages and the admin panel)
 `-- index.php
 ```
 

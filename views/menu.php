@@ -1,43 +1,58 @@
 <?php
 require_once __DIR__ . '/../includes/auth_check.php';
 
+// [title, description, url, icon]
 $items = [
-    ['Play Endless', 'Survive wave after wave.', '/views/maps.php'],
-    ['Tutorial',     'Learn the basics.',        '/views/play.php?mode=tutorial'],
-    ['Skill Tree',   'Spend souls on upgrades.', '/views/skills.php'],
-    ['Leaderboard',  'See the top survivors.',   '/views/leaderboard.php'],
-    ['Heroes',      'Pick a hero and equip loot.', '/views/heroes.php'],
+    ['Play Endless', 'Survive wave after wave.',    '/views/maps.php',                '&#9876;'],
+    ['Tutorial',     'Learn the basics.',           '/views/play.php?mode=tutorial',  '&#10070;'],
+    ['Skill Tree',   'Spend souls on upgrades.',    '/views/skills.php',              '&#10022;'],
+    ['Loadout',      'Choose your summon slots.',   '/views/loadout.php',             '&#9733;'],
+    ['Heroes',       'Pick a hero and equip loot.', '/views/heroes.php',              '&#9812;'],
+    ['Leaderboard',  'See the top survivors.',      '/views/leaderboard.php',         '&#9819;'],
 ];
 
 $pageTitle = 'Menu';
 require __DIR__ . '/../includes/header.php';
 ?>
-<section class="hero">
-    <h1><?= APP_NAME ?></h1>
-    <p>Welcome, <?= htmlspecialchars($currentUser->getUsername()) ?> &middot; Souls: <strong><?= (int) $currentUser->getSouls() ?></strong></p>
-</section>
+<div class="title-stage">
+    <canvas id="title-bg" aria-hidden="true"></canvas>
+    <div class="title-shade"></div>
 
-<nav class="menu-list">
-    <?php foreach ($items as $i => $it): ?>
-        <a class="menu-tile menu-item" data-key="<?= $i + 1 ?>" href="<?= BASE_URL . $it[2] ?>">
-            <span class="key"><?= $i + 1 ?></span>
-            <span>
-                <h2><?= htmlspecialchars($it[0]) ?></h2>
-                <p><?= htmlspecialchars($it[1]) ?></p>
-            </span>
-        </a>
-    <?php endforeach; ?>
-</nav>
+    <div class="title-player">
+        <span class="tp-name"><?= htmlspecialchars($currentUser->getUsername()) ?></span>
+        <span class="tp-souls"><i></i><?= (int) $currentUser->getSouls() ?> souls</span>
+    </div>
 
-<div class="corner-menu">
-    <?php if ($currentUser->canManageContent()): ?>
-        <a class="menu-tile menu-item" data-key="a" href="<?= BASE_URL ?>/views/admin/dashboard.php">
-            <span class="key">A</span><span><h2>Admin Panel</h2></span>
-        </a>
-    <?php endif; ?>
-    <a class="menu-tile menu-item" data-key="p" href="<?= BASE_URL ?>/views/profile.php">
-        <span class="key">P</span><span><h2>Profile</h2></span>
-    </a>
+    <div class="title-col">
+        <div class="title-logo">
+            <small>endless RTS</small>
+            <h1><?= htmlspecialchars(APP_NAME) ?></h1>
+            <span class="logo-rule"></span>
+        </div>
+
+        <nav class="title-menu">
+            <?php foreach ($items as $i => $it): ?>
+                <a class="tm-btn<?= $i === 0 ? ' primary' : '' ?>" data-key="<?= $i + 1 ?>" href="<?= BASE_URL . $it[2] ?>">
+                    <span class="tm-icon"><?= $it[3] ?></span>
+                    <span class="tm-text">
+                        <b><?= htmlspecialchars($it[0]) ?></b>
+                        <em><?= htmlspecialchars($it[1]) ?></em>
+                    </span>
+                    <span class="tm-key"><?= $i + 1 ?></span>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+
+        <div class="title-sub">
+            <?php if ($currentUser->canManageContent()): ?>
+                <a data-key="a" href="<?= BASE_URL ?>/views/admin/dashboard.php"><span>A</span> Admin Panel</a>
+            <?php endif; ?>
+            <a data-key="p" href="<?= BASE_URL ?>/views/profile.php"><span>P</span> Profile</a>
+            <a href="<?= BASE_URL ?>/views/auth/logout.php">Logout</a>
+        </div>
+    </div>
+
+    <div class="title-hint">Press <b>1-<?= count($items) ?></b> to choose</div>
 </div>
 
 <script>
@@ -47,4 +62,5 @@ document.addEventListener('keydown', function (e) {
     if (el) window.location.href = el.href;
 });
 </script>
+<script type="module" src="<?= BASE_URL ?>/assets/js/game/menu.js?v=<?= @filemtime(BASE_PATH . '/assets/js/game/menu.js') ?: 1 ?>"></script>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

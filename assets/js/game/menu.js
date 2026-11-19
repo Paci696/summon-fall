@@ -1,0 +1,133 @@
+// Animated night scene behind the title menu. Uses the game's own pixel art.
+import { getArt } from './art.js';
+import { getUnitSheet } from './UnitArt.js';
+
+const canvas = document.getElementById('title-bg');
+const ctx = canvas.getContext('2d');
+const art = getArt();
+const sheet = getUnitSheet();
+
+let W = 0, H = 0, S = 4;           // S = pixel scale of sprites
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+const stars = Array.from({ length: 110 }, () => ({ x: Math.random(), y: Math.random() * 0.62, r: rnd(0.6, 1.8), p: rnd(0, 6.28), s: rnd(0.6, 2) }));
+const flies = Array.from({ length: 34 }, () => ({ x: Math.random(), y: rnd(0.45, 0.95), p: rnd(0, 6.28), s: rnd(0.2, 0.6), c: Math.random() < 0.5 ? '176,112,255' : '255,207,90' }));
+const trees = Array.from({ length: 26 }, (_, i) => ({ x: i / 25 + rnd(-0.02, 0.02), layer: i % 3, f: rnd(0.8, 1.2) }));
+const guards = ['swordsman', 'archer', 'mage', 'healer'];
+
+function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = Math.max(2, Math.round(Math.min(W, H * 1.78) / 360));
+}
+window.addEventListener('resize', resize);
+resize();
+
+function sky(t) {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#05040f'); g.addColorStop(0.55, '#171233'); g.addColorStop(1, '#2a1a45');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    for (const s of stars) {
+        ctx.globalAlpha = 0.35 + 0.65 * Math.abs(Math.sin(t * s.s + s.p));
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(s.x * W, s.y * H, s.r, s.r);
+    }
+    ctx.globalAlpha = 1;
+    // moon
+    const mx = W * 0.72, my = H * 0.2, mr = Math.min(W, H) * 0.07;
+    const mg = ctx.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 4);
+    mg.addColorStop(0, 'rgba(200,190,255,.35)'); mg.addColorStop(1, 'rgba(200,190,255,0)');
+    ctx.fillStyle = mg; ctx.fillRect(mx - mr * 4, my - mr * 4, mr * 8, mr * 8);
+    ctx.fillStyle = '#ece8ff'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, 6.28); ctx.fill();
+    ctx.fillStyle = 'rgba(150,140,200,.45)';
+    ctx.beginPath(); ctx.arc(mx - mr * 0.3, my - mr * 0.2, mr * 0.22, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + mr * 0.35, my + mr * 0.3, mr * 0.15, 0, 6.28); ctx.fill();
+}
+
+function drawForestTinted(t, groundY) {
+    // draw each layer to an offscreen buffer so the tint only hits the trees
+    for (let layer = 0; layer < 3; layer++) {
+        const buf = drawForestTinted.buf || (drawForestTinted.buf = document.createElement('canvas'));
+        buf.width = W; buf.height = H;
+        const b = buf.getContext('2d');
+        b.imageSmoothingEnabled = false;
+        for (const tr of trees) {
+            if (tr.layer !== layer) continue;
+            const sc = S * (1.5 + layer * 0.55) * tr.f;
+            const w = 32 * sc, h = 48 * sc;
+            const x = tr.x * (W + w) - w / 2 + Math.sin(t * 0.3 + tr.x * 9) * 1.5;
+            const y = groundY + layer * S * 7 - h + 6 * sc;
+            b.drawImage(art.trees[2], x, y, w, h);
+        }
+        b.globalCompositeOperation = 'source-atop';
+        b.fillStyle = ['rgba(6,4,20,.9)', 'rgba(14,10,38,.78)', 'rgba(30,20,62,.6)'][layer];
+        b.fillRect(0, 0, W, H);
+        b.globalCompositeOperation = 'source-over';
+        ctx.drawImage(buf, 0, 0);
+    }
+}
+
+function ground(groundY) {
+    const g = ctx.createLinearGradient(0, groundY, 0, H);
+    g.addColorStop(0, '#120d26'); g.addColorStop(1, '#07050f');
+    ctx.fillStyle = g; ctx.fillRect(0, groundY + S * 12, W, H);
+    const mist = ctx.createLinearGradient(0, groundY - S * 6, 0, groundY + S * 20);
+    mist.addColorStop(0, 'rgba(120,90,200,0)'); mist.addColorStop(0.5, 'rgba(120,90,200,.18)'); mist.addColorStop(1, 'rgba(120,90,200,0)');
+    ctx.fillStyle = mist; ctx.fillRect(0, groundY - S * 6, W, S * 26);
+}
+
+function statue(t, cx, groundY) {
+    const sc = S * 1.05;
+    const w = 64 * sc, h = 112 * sc;
+    const x = cx - w / 2, y = groundY + S * 16 - h;
+    // glow behind
+    const gs = 72 * sc * 1.8, pulse = 0.75 + 0.25 * Math.sin(t * 1.6);
+    ctx.globalAlpha = pulse;
+    ctx.drawImage(art.crystalGlow, cx - gs / 2, y - gs * 0.1, gs, gs);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(art.statue, x, y, w, h);
+    const bob = Math.sin(t * 1.4) * sc * 1.2;
+    const cw = 16 * sc, ch = 28 * sc;
+    ctx.drawImage(art.crystal, cx - cw / 2, y - ch * 0.35 + bob, cw, ch);
+    // little guard line
+    const cell = sheet.cell, us = S * 1.35;
+    guards.forEach((k, i) => {
+        const e = sheet.units[k]; if (!e) return;
+        const f = i < 2 ? e.right : e.left;
+        const ux = cx + (i < 2 ? -1 : 1) * (w * 0.62 + (i % 2) * cell * us * 0.7) - cell * us / 2;
+        const uy = groundY + S * 16 - cell * us + Math.sin(t * 2 + i) * 0.8;
+        ctx.drawImage(sheet.canvas, f[0] * cell, f[1] * cell, cell, cell, ux, uy, cell * us, cell * us);
+    });
+}
+
+function flyPass(t) {
+    for (const f of flies) {
+        f.p += 0.01;
+        const x = (f.x + Math.sin(f.p * f.s * 3) * 0.02) * W;
+        const yy = (((f.y - t * f.s * 0.012) % 1) + 1) % 1 * H * 0.6 + H * 0.38;
+        const a = 0.4 + 0.6 * Math.abs(Math.sin(t * 2 + f.p));
+        const r = 3 + f.s * 6;
+        const g = ctx.createRadialGradient(x, yy, 0, x, yy, r * 2);
+        g.addColorStop(0, 'rgba(' + f.c + ',' + a + ')'); g.addColorStop(1, 'rgba(' + f.c + ',0)');
+        ctx.fillStyle = g; ctx.fillRect(x - r * 2, yy - r * 2, r * 4, r * 4);
+    }
+}
+
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let last = 0;
+function frame(ms) {
+    requestAnimationFrame(frame);
+    if (ms - last < 33 && !reduce) return;   // ~30fps is plenty and keeps it light
+    last = ms;
+    const t = reduce ? 0 : ms / 1000;
+    ctx.imageSmoothingEnabled = false;
+    const groundY = H * 0.74;
+    sky(t);
+    drawForestTinted(t, groundY - S * 6);
+    ground(groundY);
+    statue(t, W * (W > 900 ? 0.7 : 0.5), groundY);
+    flyPass(t);
+}
+requestAnimationFrame(frame);

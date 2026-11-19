@@ -9,12 +9,11 @@ if (Auth::check()) {
 
 $errors = [];
 $error = '';
-$input = ['username' => '', 'email' => ''];
+$input = ['username' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = [
         'username' => trim($_POST['username'] ?? ''),
-        'email'    => trim($_POST['email'] ?? ''),
         'password' => $_POST['password'] ?? '',
         'confirm'  => $_POST['confirm'] ?? '',
     ];
@@ -35,29 +34,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Register';
 require __DIR__ . '/../../includes/header.php';
 ?>
-<div class="card">
-    <h1>Create account</h1>
-    <?php if ($error): ?><div class="alert"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-    <form method="post">
+<div class="auth-stage">
+    <canvas id="title-bg" aria-hidden="true"></canvas>
+    <div class="auth-shade"></div>
+
+    <form class="auth-card" method="post" autocomplete="on" novalidate>
+        <div class="auth-logo"><small>endless RTS</small><h1><?= htmlspecialchars(APP_NAME) ?></h1></div>
+        <h2 class="auth-title">Create your account</h2>
+
+        <?php if ($error): ?><div class="auth-alert" role="alert"><?= htmlspecialchars($error) ?></div><?php endif; ?>
         <?= Csrf::field() ?>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" value="<?= htmlspecialchars($input['username']) ?>">
-        <span class="error"><?= htmlspecialchars($errors['username'] ?? '') ?></span>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($input['email']) ?>">
-        <span class="error"><?= htmlspecialchars($errors['email'] ?? '') ?></span>
+        <label class="auth-field <?= !empty($errors['username']) ? 'bad' : '' ?>">
+            <span>Username</span>
+            <input type="text" name="username" value="<?= htmlspecialchars($input['username']) ?>" autocomplete="username" maxlength="30" autofocus>
+            <em><?= htmlspecialchars($errors['username'] ?? '3-30 letters, numbers or underscores') ?></em>
+        </label>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password">
-        <span class="error"><?= htmlspecialchars($errors['password'] ?? '') ?></span>
+        <label class="auth-field <?= !empty($errors['password']) ? 'bad' : '' ?>">
+            <span>Password</span>
+            <div class="auth-pass">
+                <input type="password" name="password" autocomplete="new-password">
+                <button type="button" class="auth-eye" aria-label="Show password">SHOW</button>
+            </div>
+            <em><?= htmlspecialchars($errors['password'] ?? 'At least 6 characters') ?></em>
+        </label>
 
-        <label for="confirm">Confirm password</label>
-        <input type="password" id="confirm" name="confirm">
-        <span class="error"><?= htmlspecialchars($errors['confirm'] ?? '') ?></span>
+        <label class="auth-field <?= !empty($errors['confirm']) ? 'bad' : '' ?>">
+            <span>Confirm password</span>
+            <input type="password" name="confirm" autocomplete="new-password">
+            <em><?= htmlspecialchars($errors['confirm'] ?? '') ?></em>
+        </label>
 
-        <button class="btn" type="submit">Register</button>
+        <button class="auth-go" type="submit">Start your run</button>
+        <p class="auth-switch">Already have an account? <a href="<?= BASE_URL ?>/views/auth/login.php">Log in</a></p>
     </form>
-    <p>Already have an account? <a href="<?= BASE_URL ?>/views/auth/login.php">Login</a></p>
 </div>
+<script>
+document.querySelectorAll('.auth-eye').forEach(function (b) {
+    b.addEventListener('click', function () {
+        var i = b.parentNode.querySelector('input');
+        var show = i.type === 'password';
+        i.type = show ? 'text' : 'password';
+        b.textContent = show ? 'HIDE' : 'SHOW';
+    });
+});
+</script>
+<script type="module" src="<?= BASE_URL ?>/assets/js/game/menu.js?v=<?= @filemtime(BASE_PATH . '/assets/js/game/menu.js') ?: 1 ?>"></script>
 <?php require __DIR__ . '/../../includes/footer.php'; ?>

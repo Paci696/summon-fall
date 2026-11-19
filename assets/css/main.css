@@ -248,3 +248,119 @@ a.menu-tile:hover { box-shadow: 4px 8px 0 var(--ink); }
     .title-hint { display: none; }
     .tm-text em { display: none; }
 }
+
+/* ===== Polish: profile + admin pages (append at the very bottom of main.css) ===== */
+main.container > h1 { position: relative; margin: 6px 0 18px; padding-left: 16px; font-size: clamp(1.1rem, 2.6vw, 1.6rem); text-transform: uppercase;
+    text-shadow: 0 3px 0 #b05a12, 0 0 22px rgba(255, 170, 60, .3); }
+main.container > h1::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 6px; background: linear-gradient(180deg, #ffcf5a, #b070ff); }
+.hero p { color: #9a9bc8; }
+
+/* nav tabs */
+.admin-nav { gap: 10px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 3px solid #26263c; }
+.admin-nav a { font: .6rem 'Press Start 2P', monospace; padding: 11px 14px; background: #1c1c32; border-color: #34345a; box-shadow: 3px 3px 0 var(--ink); transition: transform .1s, border-color .1s; }
+.admin-nav a:hover { transform: translateY(-2px); }
+.admin-nav a.on { background: #ffcf5a; color: #1a1424; border-color: #ffcf5a; box-shadow: 0 3px 0 #b88a22; }
+
+/* stat tiles */
+.tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.tile { position: relative; overflow: hidden; padding: 18px 12px 14px; background: linear-gradient(180deg, #2b2b50, #1b1b34); border-color: #34345a; transition: transform .12s, border-color .12s; }
+.tile::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, #ffcf5a, #b070ff); opacity: .85; }
+.tile:hover { transform: translateY(-3px); border-color: #ffcf5a; }
+.tile strong { font-size: 1.25rem; margin-bottom: 8px; text-shadow: 0 2px 0 #000, 0 0 14px rgba(255, 207, 90, .35); }
+.tile span { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: #8f90b8; }
+
+/* panels */
+.panel { background: linear-gradient(180deg, #232344, #17172c); border-color: #34345a; border-left: 4px solid #ffcf5a; padding: 18px; }
+.panel h2 { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px solid #2c2c52; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+.two-col { align-items: start; gap: 20px; }
+
+/* tables */
+.admin-table, .board { font-size: .88rem; }
+.admin-table th, .board th { font: .52rem 'Press Start 2P', monospace; text-transform: uppercase; letter-spacing: .04em; color: #8f90b8; padding: 10px 8px; background: #17172c; }
+.admin-table td, .board td { padding: 9px 8px; border-bottom: 1px solid #2c2c52; }
+.admin-table tbody tr:nth-child(even) td, .admin-table tr:nth-child(even) td { background: rgba(255, 255, 255, .02); }
+.admin-table tr:hover td, .board tr:hover td { background: rgba(255, 207, 90, .08); }
+.admin-table td:first-child { color: #fff; font-weight: bold; }
+.panel .table-wrap { max-height: 420px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #4a4a80 #14142a; }
+.panel .table-wrap th { position: sticky; top: 0; z-index: 1; box-shadow: 0 2px 0 #2c2c52; }
+
+/* bar chart */
+.bars { height: 150px; gap: 12px; padding: 6px 4px 0; border-bottom: 3px solid #34345a;
+    background: repeating-linear-gradient(180deg, transparent 0 29px, rgba(255, 255, 255, .05) 29px 30px); }
+.bars div { font-size: .7rem; color: #ffcf5a; gap: 4px; }
+.bars i { background: linear-gradient(180deg, #ffe08c, #ffcf5a 40%, #c8891e); border-radius: 0; box-shadow: 0 0 12px rgba(255, 207, 90, .3); transition: filter .12s; }
+.bars div:hover i { filter: brightness(1.2); }
+
+/* alerts + scrollbars */
+.alert { border-left: 5px solid #ff7a7a; }
+.alert.ok { border-left-color: #6fff9a; }
+html { scrollbar-width: thin; scrollbar-color: #4a4a80 #0d0d16; }
+
+/* ===== Login / Register ===== */
+.auth-stage, .auth-stage * { box-sizing: border-box; }
+.auth-stage { position: fixed; inset: 0; z-index: 50; background: #07050f; overflow: auto; display: grid; place-items: center; padding: 24px 16px; }
+.auth-stage canvas { position: fixed; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.auth-shade { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, rgba(5,4,15,.35) 30%, rgba(0,0,0,.7) 100%); }
+
+.auth-card { position: relative; z-index: 2; width: min(420px, 100%); padding: 28px 28px 24px; background: linear-gradient(180deg, rgba(34,34,64,.94), rgba(16,15,34,.94));
+    border: 2px solid #3a3a6a; border-top: 4px solid #ffcf5a; box-shadow: 6px 6px 0 #05040f, 0 0 50px rgba(120,70,220,.25); animation: authIn .35s ease-out; }
+@keyframes authIn { from { opacity: 0; transform: translateY(14px); } }
+.auth-logo { text-align: center; margin-bottom: 14px; }
+.auth-logo small { display: block; color: #b070ff; font: .5rem 'Press Start 2P', monospace; letter-spacing: .35em; text-transform: uppercase; margin-bottom: 10px; }
+.auth-logo h1 { margin: 0; font: clamp(1.1rem, 4vw, 1.5rem) 'Press Start 2P', monospace; color: #ffcf5a; text-transform: uppercase;
+    text-shadow: 0 3px 0 #b05a12, 0 6px 0 #4a1f08, 0 0 24px rgba(255,170,60,.45); }
+.auth-title { text-align: center; margin: 18px 0 20px; font: .7rem 'Press Start 2P', monospace; color: #cfd0ff; text-transform: uppercase; letter-spacing: .06em; }
+.auth-title::after { content: ''; display: block; width: 90px; height: 3px; margin: 14px auto 0; background: linear-gradient(90deg, transparent, #ffcf5a, #b070ff, transparent); }
+
+.auth-field { display: block; margin: 0 0 16px; }
+.auth-field > span { display: block; margin-bottom: 8px; font: .55rem 'Press Start 2P', monospace; color: #9a9bc8; text-transform: uppercase; }
+.auth-field input { display: block; width: 100%; margin: 0; padding: 13px 12px; background: #0b0a1a; color: #fff; border: 2px solid #34345a; border-radius: 0;
+    font: 1rem Arial, sans-serif; outline: none; transition: border-color .12s, box-shadow .12s; }
+.auth-field input:focus { border-color: #ffcf5a; box-shadow: 0 0 0 3px rgba(255,207,90,.2); }
+.auth-field em { display: block; min-height: 1.1em; margin-top: 6px; font: normal .78rem Arial, sans-serif; color: #6d6d92; }
+.auth-field.bad input { border-color: #ff7a7a; }
+.auth-field.bad em { color: #ff9a9a; }
+.auth-pass { position: relative; }
+.auth-pass input { padding-right: 70px; }
+.auth-eye { position: absolute; right: 6px; top: 6px; bottom: 6px; padding: 0 10px; background: #26264a; color: #cfd0ff; border: 0; cursor: pointer; font: .5rem 'Press Start 2P', monospace; }
+.auth-eye:hover { background: #ffcf5a; color: #1a1424; }
+
+.auth-alert { margin-bottom: 16px; padding: 11px 12px; background: #4a1f2b; color: #ffd0d0; border: 2px solid #ff7a7a; border-left-width: 5px; font: .9rem Arial, sans-serif; }
+
+.auth-go { display: block; width: 100%; margin-top: 6px; padding: 16px; cursor: pointer; border: 0; color: #1a1424; background: #ffcf5a;
+    font: .75rem 'Press Start 2P', monospace; text-transform: uppercase; box-shadow: 0 5px 0 #b88a22; transition: transform .08s, filter .12s; }
+.auth-go:hover { filter: brightness(1.1); }
+.auth-go:active { transform: translateY(4px); box-shadow: 0 1px 0 #b88a22; }
+.auth-switch { margin: 20px 0 0; text-align: center; font: .9rem Arial, sans-serif; color: #9a9bc8; }
+.auth-switch a { color: #ffcf5a; text-decoration: none; font-weight: bold; }
+.auth-switch a:hover { text-decoration: underline; }
+
+/* ===== Top bar (replaces the old .topbar look; append at the bottom of main.css) ===== */
+.topbar { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    padding: 0 20px; min-height: 56px; background: linear-gradient(180deg, #14122a, #0a0914); border-bottom: 4px solid #2c2c52; box-shadow: 0 4px 0 #05040f, 0 6px 24px rgba(0,0,0,.5); }
+.topbar::after { content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 4px; background: linear-gradient(90deg, #ffcf5a, #b070ff 50%, transparent); opacity: .8; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: #ffcf5a; font-size: .85rem; text-transform: uppercase; text-shadow: 0 2px 0 #b05a12, 0 0 16px rgba(255,170,60,.35); }
+.brand-gem { width: 16px; height: 20px; background: linear-gradient(135deg, #e0b8ff, #7a3fd0); clip-path: polygon(50% 0, 100% 35%, 80% 100%, 20% 100%, 0 35%); filter: drop-shadow(0 0 6px #b070ff); animation: gemBob 2.4s ease-in-out infinite; }
+@keyframes gemBob { 50% { transform: translateY(-2px); } }
+.brand:hover { filter: brightness(1.15); }
+
+.topnav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.topnav .nl { position: relative; margin: 0; padding: 9px 13px; color: #b8b9de; text-decoration: none; font: .55rem 'Press Start 2P', monospace; text-transform: uppercase; border: 2px solid transparent; transition: color .1s, background .1s, border-color .1s; }
+.topnav .nl:hover { color: #fff; background: rgba(255,255,255,.06); }
+.topnav .nl.on { color: #1a1424; background: #ffcf5a; box-shadow: 0 3px 0 #b88a22; }
+.topnav .nl.cta { color: #1a1424; background: #ffcf5a; box-shadow: 0 3px 0 #b88a22; }
+.topnav .nl.cta:hover { filter: brightness(1.1); background: #ffcf5a; color: #1a1424; }
+.topnav .nl.out { color: #ff9a9a; margin-left: 4px; }
+.topnav .nl.out:hover { color: #1a1424; background: #ff7a7a; border-color: #ff7a7a; }
+
+.nuser { display: inline-flex; align-items: center; gap: 9px; margin: 0 4px 0 10px; padding: 5px 12px 5px 6px; background: #0d0c1e; border: 2px solid #2c2c52; }
+.nuser .av { width: 26px; height: 26px; display: grid; place-items: center; font: .6rem 'Press Start 2P', monospace; color: #1a1424; background: linear-gradient(135deg, #ffcf5a, #e08a2a); }
+.nuser .nm { color: #fff; font: 600 .85rem Arial, sans-serif; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nuser .rl { font: normal .45rem 'Press Start 2P', monospace; text-transform: uppercase; padding: 4px 5px; background: #2e2a6a; color: #c9c4ff; }
+.nuser .rl.admin { background: #4a1f4a; color: #ff9aff; }
+.nuser .sl { display: inline-flex; align-items: center; gap: 6px; padding-left: 9px; border-left: 2px solid #2c2c52; color: #d9a8ff; font: .55rem 'Press Start 2P', monospace; }
+.nuser .gem { width: 8px; height: 10px; background: #b070ff; clip-path: polygon(50% 0, 100% 40%, 80% 100%, 20% 100%, 0 40%); box-shadow: 0 0 6px #b070ff; }
+@media (max-width: 760px) {
+    .topbar { padding: 8px 12px; } .nuser .nm, .nuser .rl { display: none; }
+    .topnav .nl { padding: 8px 9px; font-size: .5rem; }
+}

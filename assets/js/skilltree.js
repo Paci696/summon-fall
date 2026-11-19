@@ -143,11 +143,14 @@ async function render(keepView = false) {
     world.replaceChildren();
     applyView();
 
-    // row labels for Base / Elite / Godly (only for unit lines)
+    // tinted bands behind each tier, with a row label (only for unit lines)
     if (state.group.startsWith('line:')) {
         const leftX = Math.min(...[...L.pos.values()].map((pt) => pt.x)) - 110;
         L.tiers.forEach((t) => {
             const rows = L.nodes.filter((n) => n.utier === t).map((n) => L.depth.get(n.id));
+            const band = el('rect', { class: 'st-band', x: -900, width: 1800, y: -Math.max(...rows) * DY - DY / 2 + 4, height: (Math.max(...rows) - Math.min(...rows) + 1) * DY - 8 }, world);
+            band.style.fill = TIER_COL[t];
+            el('rect', { x: -900, width: 1800, height: 2, y: -Math.max(...rows) * DY - DY / 2 + 4, style: `fill:${TIER_COL[t]};opacity:.35` }, world);
             const t0 = el('text', { class: 'st-rowlabel', x: leftX, y: -Math.min(...rows) * DY }, world, TIER_NAME[t].toUpperCase());
             t0.style.fill = TIER_COL[t];
             t0.style.fontSize = '16px';
@@ -187,6 +190,7 @@ async function render(keepView = false) {
         const p = L.pos.get(n.id);
         const col = TIER_COL[n.utier] || TIER_COL[0];
         const g = el('g', { class: `st-node ${n.state}${state.sel === n.id ? ' sel' : ''}`, transform: `translate(${p.x},${p.y})`, 'data-id': n.id }, world);
+        g.style.setProperty('--c', col);
         el('circle', { class: 'pulse', r: R + 3, stroke: col }, g);
         const r = n.gate ? R + 5 : R;
         el('circle', { class: 'body', r, stroke: col }, g);
@@ -211,20 +215,28 @@ function renderPanel(msg) {
     const box = $('.st-panel');
     const n = cfg.nodes.find((x) => x.id === state.sel);
     box.replaceChildren();
+    box.style.setProperty('--c', n ? (TIER_COL[n.utier] || TIER_COL[0]) : '#ffcf5a');
     if (!n) { box.textContent = 'Click a skill to see what it does.'; return; }
+    const col = TIER_COL[n.utier] || TIER_COL[0];
+    const stateTxt = n.state === 'maxed' ? 'MAXED' : n.state === 'locked' ? 'LOCKED' : 'AVAILABLE';
     const info = document.createElement('div');
-    info.style.flex = '1 1 260px';
-    const tag = n.gate ? ` <small style="color:${TIER_COL[n.utier]}">${TIER_NAME[n.utier]} unit unlock</small>` : '';
-    info.innerHTML = `<h3>${esc(n.name)}${tag}</h3><p>${esc(n.desc)}</p><div class="st-pips"></div>`;
+    info.className = 'st-info';
+    const tag = n.gate ? `<span class="st-chip" style="color:${col};border-color:${col}">${TIER_NAME[n.utier]} unit unlock</span>` : `<span class="st-chip">${TIER_NAME[n.utier] || ''} skill</span>`;
+    info.innerHTML = `<div class="st-state ${n.state}">${stateTxt}</div><h3>${esc(n.name)}</h3><p>${esc(n.desc)}</p><div class="st-pipsrow"><div class="st-pips"></div><small>Level ${n.level}/${n.max}</small>${tag}</div>`;
     const pips = info.querySelector('.st-pips');
     for (let i = 1; i <= n.max; i++) { const s = document.createElement('span'); s.className = 'st-pip' + (i <= n.level ? ' on' : ''); pips.appendChild(s); }
     const right = document.createElement('div');
+    right.className = 'st-buywrap';
     const btn = document.createElement('button');
     btn.className = 'st-buy';
     btn.type = 'button';
     if (n.state === 'maxed') { btn.textContent = 'Max level'; btn.disabled = true; }
-    else if (n.state === 'locked') { btn.textContent = n.needs; btn.disabled = true; }
-    else { btn.textContent = `${n.level === 0 ? 'Unlock' : 'Upgrade'} - ${n.cost} souls`; btn.disabled = cfg.souls < n.cost || state.busy; }
+    else if (n.state === 'locked') { btn.textContent = n.needs; btn.disabled = true; btn.classList.add('lock'); }
+    else {
+        btn.innerHTML = `${n.level === 0 ? 'Unlock' : 'Upgrade'}<span class="st-cost"><i></i>${n.cost}</span>`;
+        btn.disabled = cfg.souls < n.cost || state.busy;
+        if (cfg.souls < n.cost) btn.title = 'Not enough souls';
+    }
     btn.addEventListener('click', () => buy(n.id));
     right.appendChild(btn);
     box.append(info, right);

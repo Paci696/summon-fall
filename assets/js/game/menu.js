@@ -1,11 +1,14 @@
 // Animated night scene behind the title menu. Uses the game's own pixel art.
 import { getArt } from './art.js';
 import { getUnitSheet } from './UnitArt.js';
+import { getHeroSheet } from './HeroArt.js';
 
 const canvas = document.getElementById('title-bg');
 const ctx = canvas.getContext('2d');
 const art = getArt();
 const sheet = getUnitSheet();
+const heroSheet = getHeroSheet();
+const heroKey = canvas.dataset.hero, heroName = canvas.dataset.heroName || '';
 
 let W = 0, H = 0, S = 4;           // S = pixel scale of sprites
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -102,6 +105,26 @@ function statue(t, cx, groundY) {
     });
 }
 
+function hero(t, cx, groundY) {
+    const spot = heroSheet.units[heroKey];
+    if (!spot) return;
+    const cell = heroSheet.cell, size = S * 54, sc = size / cell;
+    const feet = groundY + S * 34;
+    const x = cx - size / 2, y = feet - size * 0.92 + Math.sin(t * 2.2) * S * 0.8;
+    const g = ctx.createRadialGradient(cx, feet, 2, cx, feet, size * 0.7);
+    g.addColorStop(0, 'rgba(255,207,90,.35)'); g.addColorStop(1, 'rgba(255,207,90,0)');
+    ctx.fillStyle = g; ctx.fillRect(cx - size, feet - size * 0.3, size * 2, size * 0.6);
+    ctx.drawImage(heroSheet.canvas, spot.right[0] * cell, 0, cell, cell, x, y, size, size);
+    if (heroName) {
+        ctx.font = Math.max(9, S * 3) + 'px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        const label = heroName.toUpperCase(), ty = feet + S * 10;
+        ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillText(label, cx + 2, ty + 2);
+        ctx.fillStyle = '#ffcf5a'; ctx.fillText(label, cx, ty);
+        ctx.textAlign = 'left';
+    }
+}
+
 function flyPass(t) {
     for (const f of flies) {
         f.p += 0.01;
@@ -128,6 +151,7 @@ function frame(ms) {
     drawForestTinted(t, groundY - S * 6);
     ground(groundY);
     statue(t, W * (W > 900 ? 0.7 : 0.5), groundY);
+    hero(t, W * (W > 900 ? 0.7 : 0.5), groundY);
     flyPass(t);
 }
 requestAnimationFrame(frame);

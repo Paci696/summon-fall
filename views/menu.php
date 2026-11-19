@@ -11,11 +11,18 @@ $items = [
     ['Leaderboard',  'See the top survivors.',      '/views/leaderboard.php',         '&#9819;'],
 ];
 
+$heroKey = 'knight'; $heroName = '';
+try {
+    $h = Hero::selectedFor($currentUser->getId());
+    $heroKey = $h->getSpriteKey();
+    $heroName = $h->getName();
+} catch (Throwable $e) { /* menu still works without a hero */ }
+
 $pageTitle = 'Menu';
 require __DIR__ . '/../includes/header.php';
 ?>
 <div class="title-stage">
-    <canvas id="title-bg" aria-hidden="true"></canvas>
+    <canvas id="title-bg" aria-hidden="true" data-hero="<?= htmlspecialchars($heroKey) ?>" data-hero-name="<?= htmlspecialchars($heroName) ?>"></canvas>
     <div class="title-shade"></div>
 
     <div class="title-player">

@@ -28,7 +28,6 @@ class Auth
     {
         $v = new Validator($input);
         $v->required('username', 'Username')->username('username')
-          ->required('email', 'Email')->email('email')
           ->required('password', 'Password')->minLength('password', 6, 'Password')
           ->matches('password', 'confirm', 'Passwords do not match.');
         $v->throwIfFails();
@@ -38,14 +37,13 @@ class Auth
         if ($db->fetchOne('SELECT id FROM users WHERE username = ?', [$input['username']])) {
             $errors['username'] = 'That username is already taken.';
         }
-        if ($db->fetchOne('SELECT id FROM users WHERE email = ?', [$input['email']])) {
-            $errors['email'] = 'That email is already registered.';
-        }
         if ($errors) {
             throw new ValidationException('Please fix the errors below.', $errors);
         }
 
-        $user = new PlayerUser($input['username'], $input['email'], '');
+        // Players no longer enter an email. The column is NOT NULL UNIQUE, so store a unique internal placeholder.
+        $email = strtolower($input['username']) . '@players.summonfall.local';
+        $user = new PlayerUser($input['username'], $email, '');
         $user->setPassword($input['password']);
         $user->save();
         return $user;

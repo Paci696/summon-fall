@@ -66,68 +66,76 @@ require __DIR__ . '/../includes/header.php';
 $flash = $flash ?? null;
 ?>
 <style>
-    .hp { --gold:#ffcf5a; --ink:#14122a; --panel:#1d1a3a; --line:#3a3568; color:#e8e6ff; }
-    .hp h1 { margin:0 0 4px; }
-    .hp .sub { opacity:.75; margin:0 0 16px; }
-    .hp canvas { image-rendering: pixelated; }
-    /* hero picker */
-    .picker { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:22px; }
-    .hcard { position:relative; display:block; text-decoration:none; color:inherit; background:linear-gradient(180deg,#26224d,#171433);
-             border:2px solid var(--line); border-radius:12px; padding:12px; transition:transform .12s, border-color .12s, box-shadow .12s; }
-    .hcard:hover { transform:translateY(-3px); border-color:#7a72d6; }
-    .hcard.view { border-color:var(--gold); box-shadow:0 0 0 2px rgba(255,207,90,.25), 0 8px 24px rgba(0,0,0,.4); }
-    .hcard .stage { height:150px; border-radius:8px; display:flex; align-items:flex-end; justify-content:center; overflow:hidden;
-                    background:radial-gradient(ellipse at 50% 85%, rgba(255,207,90,.22), transparent 62%), #0f0d22; }
-    .hcard .stage canvas { width:144px; height:144px; filter:drop-shadow(0 6px 4px rgba(0,0,0,.6)); }
-    .hcard h3 { margin:10px 0 2px; font-size:1.15rem; }
-    .role { display:inline-block; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; padding:2px 8px; border-radius:20px; background:#2e2a5e; color:#b9b4ff; }
-    .ribbon { position:absolute; top:10px; right:-6px; background:var(--gold); color:#1a1424; font-weight:700; font-size:.7rem; letter-spacing:.08em;
-              padding:3px 10px; border-radius:4px 0 0 4px; box-shadow:0 2px 6px rgba(0,0,0,.4); }
-    .stat { display:grid; grid-template-columns:44px 1fr 64px; gap:8px; align-items:center; font-size:.8rem; margin:4px 0; }
-    .sb { height:8px; background:#0f0d22; border-radius:4px; overflow:hidden; border:1px solid #2c2858; }
-    .sb i { display:block; height:100%; border-radius:4px; }
-    .sv { text-align:right; } .sv em { color:#7fff9f; font-style:normal; }
-    .sl { opacity:.7; }
+    .hp { --gold:#ffcf5a; --ink:#05040f; --panel:#1a1a30; --line:#34345a; color:#e8e8f0; max-width:1100px; margin:0 auto; }
+    .hp h1 { text-align:center; font-size:clamp(1.4rem,3.4vw,2.1rem); text-transform:uppercase; margin:6px 0 4px; text-shadow:0 3px 0 #b05a12, 0 0 24px rgba(255,170,60,.35); }
+    .hp h2 { font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; margin:26px 0 12px; display:flex; align-items:center; gap:12px; }
+    .hp h2::after { content:''; flex:1; height:3px; background:linear-gradient(90deg,#34345a,transparent); }
+    .hp .sub { text-align:center; color:#9a9bc8; margin:0 0 22px; }
+    .hp canvas { image-rendering:pixelated; }
+    /* roster */
+    .picker { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:22px; }
+    .hcard { position:relative; display:block; text-decoration:none; color:inherit; padding:10px; background:linear-gradient(180deg,#25254a,#14142a);
+             border:2px solid var(--line); box-shadow:3px 3px 0 var(--ink); transition:transform .12s, border-color .12s; }
+    .hcard:hover { transform:translateY(-4px); border-color:#8f90e0; }
+    .hcard.view { border-color:var(--gold); box-shadow:3px 3px 0 var(--ink), 0 0 20px rgba(255,207,90,.3); }
+    .hcard .stage { height:120px; display:flex; align-items:flex-end; justify-content:center; overflow:hidden;
+        background:radial-gradient(ellipse at 50% 100%, rgba(176,112,255,.35), transparent 65%), #0b0a1c; border:2px solid #20203c; }
+    .hcard .stage canvas { width:112px; height:112px; filter:drop-shadow(0 5px 3px rgba(0,0,0,.7)); transition:transform .15s; }
+    .hcard:hover .stage canvas { transform:scale(1.08) translateY(-3px); }
+    .hcard h3 { margin:10px 0 6px; font-size:.7rem; text-transform:uppercase; color:#fff; }
+    .role { display:inline-block; font:.5rem 'Press Start 2P', monospace; letter-spacing:.06em; text-transform:uppercase; padding:4px 7px; background:#2e2a6a; color:#c9c4ff; }
+    .ribbon { position:absolute; top:-2px; right:-2px; background:var(--gold); color:#1a1424; font:.5rem 'Press Start 2P', monospace; padding:5px 7px; box-shadow:0 3px 0 #b88a22; z-index:2; }
+    .stat { display:grid; grid-template-columns:40px 1fr 62px; gap:8px; align-items:center; font-size:.78rem; margin:5px 0; }
+    .sb { height:8px; background:#0b0a1c; border:1px solid #2c2858; }
+    .sb i { display:block; height:100%; }
+    .sv { text-align:right; } .sv em { color:#6fff9a; font-style:normal; }
+    .sl { color:#8f90b8; font-size:.7rem; }
     /* detail */
-    .detail { display:grid; grid-template-columns:minmax(220px,300px) 1fr; gap:18px; background:var(--panel); border:2px solid var(--line); border-radius:12px; padding:16px; margin-bottom:22px; }
+    .detail { display:grid; grid-template-columns:minmax(220px,320px) 1fr; gap:0; background:var(--panel); border:2px solid var(--gold); box-shadow:4px 4px 0 var(--ink), 0 0 26px rgba(255,207,90,.15); margin-bottom:10px; }
     @media (max-width:760px) { .detail { grid-template-columns:1fr; } }
-    .detail .stage { border-radius:10px; background:radial-gradient(ellipse at 50% 90%, rgba(255,207,90,.28), transparent 60%), #0f0d22;
-                     display:flex; align-items:flex-end; justify-content:center; min-height:250px; }
-    .detail .stage canvas { width:240px; height:240px; filter:drop-shadow(0 8px 6px rgba(0,0,0,.6)); }
+    .detail .stage { display:flex; align-items:flex-end; justify-content:center; min-height:300px; position:relative; overflow:hidden;
+        background:radial-gradient(circle at 70% 18%, rgba(236,232,255,.9) 0 18px, rgba(200,190,255,.15) 19px 60px, transparent 61px),
+                   linear-gradient(180deg,#07061a,#1d1440 70%,#2a1a45); border-right:2px solid var(--line); }
+    .detail .stage::after { content:''; position:absolute; left:0; right:0; bottom:0; height:44px; background:linear-gradient(180deg,#120d26,#07050f); border-top:3px solid #2a2150; }
+    .detail .stage canvas { position:relative; z-index:1; width:250px; height:250px; margin-bottom:14px; filter:drop-shadow(0 8px 6px rgba(0,0,0,.7)); animation:heroBob 2.2s ease-in-out infinite; }
+    @keyframes heroBob { 50% { transform:translateY(-6px); } }
+    .detail .body { padding:18px; }
+    .detail h2::after { display:none; }
     .abilities { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin:12px 0; }
-    .ab { background:#13112b; border:1px solid var(--line); border-left-width:4px; border-radius:8px; padding:8px 10px; }
+    .ab { background:#10101f; border:2px solid var(--line); border-left-width:5px; padding:9px 10px; }
     .ab .top { display:flex; align-items:center; gap:8px; }
-    .key { display:inline-block; min-width:22px; text-align:center; font-weight:700; border:1px solid #6a63c0; border-radius:5px; background:#26224d; padding:1px 5px; font-size:.8rem; }
-    .ab .cd { margin-left:auto; font-size:.75rem; opacity:.7; }
-    .ab p { margin:4px 0 0; font-size:.82rem; opacity:.85; }
-    .chips { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
-    .chip { background:#2a255a; border:1px solid #4a43a0; border-radius:20px; padding:2px 10px; font-size:.78rem; color:#cfcaff; }
-    .hp .go { display:inline-block; background:var(--gold); color:#1a1424; font-weight:700; border:0; border-radius:8px; padding:9px 18px; cursor:pointer; font-size:.95rem; }
-    .hp .go:hover { filter:brightness(1.1); }
-    .hp .ghost2 { background:transparent; color:#cfcaff; border:1px solid #5a53b0; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:.8rem; }
-    .hp .ghost2:hover { background:#2a255a; }
+    .key { display:inline-grid; place-items:center; min-width:24px; height:24px; font:.6rem 'Press Start 2P', monospace; color:#1a1424; background:var(--gold); box-shadow:0 3px 0 #b88a22; }
+    .ab .cd { margin-left:auto; font-size:.75rem; color:#8f90b8; }
+    .ab p { margin:6px 0 0; font-size:.82rem; color:#b8b9de; }
+    .chips { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0; }
+    .chip { background:#22224a; border:2px solid #3a3a7a; padding:3px 9px; font-size:.76rem; color:#cfcaff; }
+    .hp .go { display:inline-block; background:var(--gold); color:#1a1424; font:.65rem 'Press Start 2P', monospace; border:0; padding:12px 18px; cursor:pointer; box-shadow:0 4px 0 #b88a22; }
+    .hp .go:hover { filter:brightness(1.1); transform:translateY(-1px); }
+    .hp .ghost2 { background:transparent; color:#cfd0ff; border:2px solid #4a4a80; padding:5px 10px; cursor:pointer; font-size:.78rem; }
+    .hp .ghost2:hover { background:#2a2a5a; }
     /* equipment */
-    .slots { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:24px; }
-    .slot { display:flex; gap:12px; align-items:center; background:var(--panel); border:2px dashed var(--line); border-radius:12px; padding:12px; min-height:84px; }
-    .slot.full { border-style:solid; }
-    .slot canvas, .icard canvas { width:56px; height:56px; border-radius:6px; flex:none; }
-    .slot .nm { font-weight:700; } .slot small { opacity:.8; display:block; }
-    .rar { font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; }
+    .slots { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .slot { display:flex; gap:12px; align-items:center; background:var(--panel); border:2px dashed var(--line); padding:12px; min-height:88px; }
+    .slot.full { border-style:solid; box-shadow:3px 3px 0 var(--ink); }
+    .slot canvas, .icard canvas { width:56px; height:56px; flex:none; background:#0b0a1c; border:2px solid #20203c; }
+    .slot .nm { font-weight:bold; } .slot small { color:#a0a1c8; display:block; }
+    .rar { font:.5rem 'Press Start 2P', monospace; text-transform:uppercase; margin-bottom:4px; }
     /* inventory */
-    .filters { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 12px; }
-    .filters button { background:#1d1a3a; color:#cfcaff; border:1px solid var(--line); border-radius:20px; padding:4px 14px; cursor:pointer; }
-    .filters button.on { background:var(--gold); color:#1a1424; border-color:var(--gold); font-weight:700; }
-    .items { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; }
-    .icard { display:flex; gap:10px; background:var(--panel); border:2px solid var(--line); border-radius:10px; padding:10px; }
+    .filters { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 12px; }
+    .filters button { background:#1c1c32; color:#cfd0ff; border:2px solid var(--line); padding:8px 12px; cursor:pointer; font:.55rem 'Press Start 2P', monospace; box-shadow:2px 2px 0 var(--ink); }
+    .filters button.on { background:var(--gold); color:#1a1424; border-color:var(--gold); }
+    .items { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px; }
+    .icard { display:flex; gap:10px; background:var(--panel); border:2px solid var(--line); padding:10px; box-shadow:3px 3px 0 var(--ink); }
     .icard .info { flex:1; min-width:0; font-size:.85rem; }
-    .icard .nm { font-weight:700; }
-    .icard .btns { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+    .icard .info small { display:block; color:#a0a1c8; }
+    .icard .nm { font-weight:bold; }
+    .icard .btns { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
     .icard form { margin:0; }
-    .empty-note { padding:18px; text-align:center; border:2px dashed var(--line); border-radius:12px; opacity:.8; }
+    .empty-note { padding:18px; text-align:center; border:2px dashed var(--line); color:#9a9bc8; }
 </style>
 
 <div class="hp">
-<section class="hero">
+<section>
     <h1>Heroes</h1>
     <p class="sub">Your hero joins every Endless run for free. Choose who leads your army and equip the loot you find.</p>
 </section>
@@ -155,8 +163,8 @@ $flash = $flash ?? null;
 
 <div class="detail">
     <div class="stage"><canvas width="48" height="48" data-hero="<?= htmlspecialchars($spriteKeyOf($view)) ?>"></canvas></div>
-    <div>
-        <h2 style="margin:0"><?= htmlspecialchars($view->getName()) ?> <span class="role"><?= htmlspecialchars($view->getRole()) ?></span></h2>
+    <div class="body">
+        <h2 style="margin:0;display:block"><?= htmlspecialchars($view->getName()) ?> <span class="role"><?= htmlspecialchars($view->getRole()) ?></span></h2>
         <p style="opacity:.85"><?= htmlspecialchars($view->getDescription()) ?></p>
         <?= $bar('HP', $view->getHp(), $maxOf['hp'], '#4fd05f', $totals['hp_pct'] ? '+' . $totals['hp_pct'] . '%' : '') ?>
         <?= $bar('DMG', $view->getDamage(), $maxOf['damage'], '#ff7a5a', $totals['damage_pct'] ? '+' . $totals['damage_pct'] . '%' : '') ?>

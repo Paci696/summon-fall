@@ -138,11 +138,11 @@ require __DIR__ . '/../includes/header.php';
             <div class="st-tabs">
                 <button class="st-tab" type="button" data-tab="units">Units</button>
                 <button class="st-tab" type="button" data-tab="heroes">Heroes</button>
-                <span class="st-souls">Souls: <strong><?= $payload['souls'] ?></strong></span>
+                <span class="st-souls"><i class="st-gem"></i>Souls <strong><?= $payload['souls'] ?></strong></span>
             </div>
             <div class="st-groups"></div>
         </div>
-        <div class="st-hint">Drag to move &middot; scroll to zoom &middot; double-click to reset &middot; click a skill to select it</div>
+        <div class="st-hint"><b>Drag</b> move &middot; <b>Scroll</b> zoom &middot; <b>Double-click</b> reset &middot; <b>Click</b> a skill</div>
         <div class="st-panel">Loading skills...</div>
     </div>
     <form id="st-csrf" onsubmit="return false"><?= Csrf::field() ?></form>

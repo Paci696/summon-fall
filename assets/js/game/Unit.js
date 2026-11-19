@@ -6,6 +6,7 @@ import { getUnitSheet, getBossSheet } from './UnitArt.js';
 import { getHeroSheet } from './HeroArt.js';
 import { getNightSheet } from './NightArt.js';
 import { rankSheet, tintSheet } from './RankArt.js';
+import { getRankFrames, RankAnimator } from './EliteArt.js';
 
 const LOOKS = {
     miner:         { shape: 'circle',   color: '#e0c040' },
@@ -64,6 +65,11 @@ export class Unit extends Entity {
         this.lifespan = null;   // seconds until an undead crumbles
     }
     attachSprite(assets) {
+        // Elite / Godly player units have their own animated art (EliteArt.js)
+        if (!this.isUndead && this.faction === 'player' && this.rank > 0) {
+            const frames = getRankFrames(String(this.stats.sprite_key), this.rank);
+            if (frames) { this.animator = new RankAnimator(frames); return; }
+        }
         const img = assets.getImage('units');
         const atlas = assets.getJson('units');
         let spot = atlas && atlas.units && atlas.units[this.stats.sprite_key];

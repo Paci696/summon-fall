@@ -1411,6 +1411,7 @@ export class Game {
         this.drawMeteors(ctx);
         this.drawDragBox(ctx);
         if (this.dayNight) this.dayNight.draw(ctx);
+        if (this.map.drawAmbient) this.map.drawAmbient(ctx, this.camera);
         ctx.drawImage(getArt().vignette, 0, 0, VIEW_W, VIEW_H);
         this.minimap.draw(ctx);
         this.units.forEach((u) => this.minimap.dotWorld(ctx, u.x, u.y, u.faction === 'player' ? '#ffffff' : '#ff3030'));

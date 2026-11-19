@@ -3,7 +3,7 @@ require_once __DIR__ . '/../includes/auth_check.php';
 
 $mode = in_array($_GET['mode'] ?? '', ['endless', 'tutorial'], true) ? $_GET['mode'] : 'endless';
 $mapId = (int) ($_GET['map'] ?? 1);
-if (!in_array($mapId, [1, 2, 3], true)) {
+if (!in_array($mapId, [1, 2, 3, 4], true)) {
     $mapId = 1;
 }
 $config = ['baseUrl' => BASE_URL, 'mode' => $mode, 'username' => $currentUser->getUsername(),'mapId' => $mapId, 'debug' => DEBUG, 'csrf' => Csrf::token()];

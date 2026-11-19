@@ -3,7 +3,7 @@ class Score extends Model
 {
     protected static string $table = 'scores';
 
-    public const MAPS = [1 => 'Greenfield', 2 => 'Twin Lakes', 3 => 'Stonepass'];
+    public const MAPS = [1 => 'Greenfield', 2 => 'Twin Lakes', 3 => 'Stonepass', 4 => 'Frostveil'];
 
     private int $userId;
     private int $score;

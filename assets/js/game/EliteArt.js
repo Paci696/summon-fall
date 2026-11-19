@@ -62,6 +62,7 @@ const SKIN = '#f1c7a0', SKIN_D = '#d19a72', EYE = '#14101e';
 
 // palettes: metal = [dark, base, light, shine]
 const PAL = {
+    0: { metal: ['#3e3e4c', '#6e7384', '#9aa0b4', '#c8cddc'], trim: '#c9a24a', trimD: '#8a6a22', cape: '#8a3030', capeD: '#5a1c1c', boot: '#3a2e26', pants: '#4a4a5a', glow: '#ffe9a0', cloth: ['#5a4a3a', '#8a7358', '#b39a78'] },
     1: { metal: ['#3d4864', '#6f7fa6', '#a9b9de', '#e6efff'], trim: '#4fc3ff', trimD: '#2a86c0', cape: '#2a50c8', capeD: '#1a3490', boot: '#2b3248', pants: '#32406a', glow: '#8fe0ff', cloth: ['#2a3b8a', '#3f56c8', '#6b86f0'] },
     2: { metal: ['#8a5a10', '#d9a21c', '#ffd24a', '#fff4b0'], trim: '#ffffff', trimD: '#e8c860', cape: '#f4eeff', capeD: '#c9b8f0', boot: '#6a4408', pants: '#f0e8ff', glow: '#fff0a0', cloth: ['#b8a0f0', '#f4eeff', '#ffffff'] },
 };
@@ -142,8 +143,9 @@ function swordsman(g, rk, p) {
     torso(g, P);
     // helmet
     blob(g, 20, 10, 6.4, 6.4, m);
-    R(g, 20, 9, 6, 3, '#14101e'); R(g, 21, 10, 4, 1, rk === 2 ? '#fff0a0' : '#8fe0ff');  // visor slit
-    if (rk === 1) { R(g, 13, 3, 7, 2, '#d23b3b'); R(g, 11, 5, 4, 3, '#a02828'); R(g, 18, 2, 5, 2, '#ff6a5a'); }          // plume
+    R(g, 20, 9, 6, 3, '#14101e'); R(g, 21, 10, 4, 1, rk === 2 ? '#fff0a0' : (rk === 1 ? '#8fe0ff' : '#c8cddc'));  // visor slit
+    if (rk === 0) { R(g, 18, 3, 4, 2, '#8a3030'); }
+    else if (rk === 1) { R(g, 13, 3, 7, 2, '#d23b3b'); R(g, 11, 5, 4, 3, '#a02828'); R(g, 18, 2, 5, 2, '#ff6a5a'); }          // plume
     else { R(g, 11, 6, 4, 2, '#ffffff'); R(g, 9, 4, 4, 2, '#fff4b0'); R(g, 7, 2, 4, 2, '#ffe680'); halo(g, p, P); R(g, 19, 3, 2, 3, '#fff'); }
     // sword + arm
     const s = p.swing;
@@ -262,7 +264,7 @@ function healer(g, rk, p) {
     blob(g, 20, 10, 6.8, 6.6, cloth.concat(['#ffffff']));
     R(g, 20, 9, 5, 5, SKIN); R(g, 20, 13, 5, 1, SKIN_D); R(g, 23, 10, 1, 2, EYE); R(g, 24, 12, 1, 1, '#ff9aa8');
     if (rk === 1) { R(g, 16, 4, 8, 2, '#ffd24a'); R(g, 19, 1, 2, 4, '#ffd24a'); R(g, 18, 2, 4, 1, '#ffd24a'); }   // mitre cross
-    else halo(g, p, P);
+    else if (rk === 2) halo(g, p, P);
     // staff with glowing head: raised on the heal
     const s = p.swing, up = s >= 0 ? Math.round(Math.sin(s * 3.14) * 3) : 0;
     R(g, 31, 11 - up, 2, 25 + up, '#d9c28a'); R(g, 31, 11 - up, 1, 25 + up, '#fff0b0');
@@ -323,7 +325,7 @@ const cache = {};
 
 export function getRankFrames(key, rank) {
     const draw = DRAWERS[key];
-    if (!draw || (rank !== 1 && rank !== 2)) return null;
+    if (!draw || (rank !== 0 && rank !== 1 && rank !== 2)) return null;
     const id = key + rank;
     if (cache[id]) return cache[id];
     const total = ORDER.reduce((a, k) => a + FRAMES[k], 0);
@@ -373,34 +375,33 @@ export class RankAnimator {
 
     update(ms) { this.t += ms; this.spark += ms / 1000; }
 
-    draw(ctx, x, y, flip) {
+    draw(ctx, x, y, flip, scale = 1) {
         const list = this.f.index[this.anim];
         const i = Math.floor(this.t / SPEED[this.anim]) % list.length;
-        const cell = this.f.cell;
-        const dx = Math.round(x - cell / 2), dy = Math.round(y - FEET - 1);
+        const cell = this.f.cell, sz = cell * scale;
+        const dx = Math.round(x - sz / 2), dy = Math.round(y - (FEET + 1) * scale);
         ctx.save();
-        if (flip) { ctx.translate(Math.round(x) * 2, 0); ctx.scale(-1, 1); }
-        // soft aura under the unit
-        if (this.f.rank === 2) {
-            const a = 0.28 + 0.12 * Math.sin(this.spark * 3);
-            ctx.globalAlpha = a; ctx.fillStyle = '#ffe680';
-            ctx.beginPath(); ctx.ellipse(Math.round(x), Math.round(y), 15, 6, 0, 0, 6.3); ctx.fill();
+        if (this.f.rank === 2) {                                   // soft aura under a Godly unit
+            ctx.globalAlpha = 0.28 + 0.12 * Math.sin(this.spark * 3); ctx.fillStyle = '#ffe680';
+            ctx.beginPath(); ctx.ellipse(Math.round(x), Math.round(y), 15 * scale, 6 * scale, 0, 0, 6.3); ctx.fill();
             ctx.globalAlpha = 1;
         }
-        ctx.drawImage(this.f.canvas, list[i] * cell, 0, cell, cell, dx, dy, cell, cell);
+        if (flip) { ctx.translate(Math.round(x) * 2, 0); ctx.scale(-1, 1); }
+        ctx.drawImage(this.f.canvas, list[i] * cell, 0, cell, cell, dx, dy, sz, sz);
         ctx.restore();
-        this.sparkles(ctx, x, y);
+        this.sparkles(ctx, x, y, scale);
         return true;
     }
 
     // little floating lights: gold motes for Godly, blue glints for Elite
-    sparkles(ctx, x, y) {
+    sparkles(ctx, x, y, sc = 1) {
+        if (this.f.rank < 1) return;
         const god = this.f.rank === 2, n = god ? 4 : 2;
         ctx.save();
         for (let k = 0; k < n; k++) {
             const ph = (this.spark * (god ? 0.9 : 0.6) + k / n) % 1;
-            const px = x + Math.sin(this.spark * 1.7 + k * 2.1) * (god ? 13 : 10);
-            const py = y - 6 - ph * (god ? 34 : 26);
+            const px = x + Math.sin(this.spark * 1.7 + k * 2.1) * (god ? 13 : 10) * sc;
+            const py = y - (6 + ph * (god ? 34 : 26)) * sc;
             ctx.globalAlpha = Math.sin(ph * Math.PI) * 0.9;
             ctx.fillStyle = god ? (k % 2 ? '#ffffff' : '#ffe680') : '#9fe4ff';
             ctx.fillRect(Math.round(px), Math.round(py), god && k === 0 ? 2 : 1, god && k === 0 ? 2 : 1);

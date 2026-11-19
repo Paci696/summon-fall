@@ -15,14 +15,23 @@ $heroKey = 'knight'; $heroName = '';
 try {
     $h = Hero::selectedFor($currentUser->getId());
     $heroKey = $h->getSpriteKey();
-    $heroName = $h->getName();
+    $heroName = $h->getName() . ' LV ' . HeroLevel::info($currentUser->getId(), $h->getId())['level'];
 } catch (Throwable $e) { /* menu still works without a hero */ }
+
+// highest unlocked version (0 base, 1 elite, 2 godly) of each unit line, for the guards on the title screen
+$unitTiers = [];
+try {
+    foreach (Unit::availableForUser($currentUser->getId()) as $u) {
+        $k = $u->getSpriteKey();
+        $unitTiers[$k] = max($unitTiers[$k] ?? 0, $u->getTier());
+    }
+} catch (Throwable $e) { /* menu still works without it */ }
 
 $pageTitle = 'Menu';
 require __DIR__ . '/../includes/header.php';
 ?>
 <div class="title-stage">
-    <canvas id="title-bg" aria-hidden="true" data-hero="<?= htmlspecialchars($heroKey) ?>" data-hero-name="<?= htmlspecialchars($heroName) ?>"></canvas>
+    <canvas id="title-bg" aria-hidden="true" data-hero="<?= htmlspecialchars($heroKey) ?>" data-hero-name="<?= htmlspecialchars($heroName) ?>" data-units="<?= htmlspecialchars(json_encode((object) $unitTiers)) ?>"></canvas>
     <div class="title-shade"></div>
 
     <div class="title-player">

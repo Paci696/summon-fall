@@ -19,6 +19,8 @@ import { applyBonuses, flatBonus } from './Bonuses.js';
 import { Sfx } from './Sfx.js';
 import { getArt } from './art.js';
 import { Music } from './Music.js';
+import { HeroLevelHud } from './HeroLevelHud.js';
+import { drawHeroLevelHud } from './HeroLevelHud.js';
 import { HeroUnit, HERO_KEYS } from './HeroUnit.js';
 import { getHeroSheet } from './HeroArt.js';
 import { drawItemIcon, RARITY_COLORS } from './ItemArt.js';
@@ -85,6 +87,7 @@ export class Game {
         this.gameOver = false;
         this.endReason = '';
         this.runMessage = '';
+        this.heroHud = new HeroLevelHud(window.GAME_CONFIG || {});
         this.debugUsed = false;
         this.tutorial = null;
         this.totalGold = 0;      // gold delivered by miners (tutorial uses it)
@@ -209,6 +212,7 @@ export class Game {
                     boss_kills: this.bossKills,
                 });
                 this.runMessage = 'Saved! +' + r.souls_banked + ' souls banked';
+                if (r.hero) this.runMessage += ' | ' + (r.hero.name || 'Hero') + ' +' + r.hero.gained + ' XP' + (r.hero.level > r.hero.before ? ' - LEVEL UP! LV ' + r.hero.level : ' (LV ' + r.hero.level + ')');
             } catch (e) {
                 this.runMessage = 'Could not save: ' + e.message;
             }
@@ -1423,7 +1427,7 @@ export class Game {
         this.drawDeleteButton(ctx);
         this.summonBar.drawTooltip(ctx);
         this.drawSoundHint(ctx);
-        this.drawHud(ctx);
+        this.drawHud(ctx); drawHeroLevelHud(ctx, this, VIEW_W);
         this.drawBossBar(ctx);
         this.drawBanner(ctx);
         if (this.tutorial) this.tutorial.draw(ctx);
@@ -1682,6 +1686,7 @@ export class Game {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(String(count[i]), x - dx * 18, y - dy * 18 + 3);
             }
+            this.heroHud.draw(ctx, this, VIEW_W);
         }
     }
 

@@ -7,7 +7,10 @@ const AIMED = new Set(['dash', 'line', 'area']);          // these are cast at t
 export class HeroUnit extends Unit {
     constructor(hd, x, y) {
         const sk = hd.skills || {}, eq = hd.equipment || {};
-        const mult = (skillKey, eqKey) => 1 + ((sk[skillKey] || 0) + (eq[eqKey] || 0)) / 100;
+        // hero level (1-100): +1.2% HP and damage per level above 1 (set in play.php, capped at 100)
+        const level = Math.max(1, Math.min(100, Number((window.GAME_CONFIG || {}).heroLevel) || 1));
+        const lvBonus = (level - 1) * 1.2;
+        const mult = (skillKey, eqKey) => 1 + ((sk[skillKey] || 0) + (eq[eqKey] || 0) + ((skillKey === 'hp' || skillKey === 'damage') ? lvBonus : 0)) / 100;
         const stats = {
             id: -hd.id, name: hd.name, role: hd.role, class_type: 'hero',
             hp: Math.round(hd.hp * mult('hp', 'hp_pct')),
@@ -19,6 +22,7 @@ export class HeroUnit extends Unit {
         };
         super(stats, 'player', x, y);
         this.isHero = true;
+        this.level = level;
         this.radius = 10;
         this.dmgMult = mult('damage', 'damage_pct');
         this.abilityMult = 1 + (sk.ability || 0) / 100;

@@ -2,6 +2,7 @@
 // It fills hidden <input name="slot[]"> fields, so the PHP save code (Loadout::save) is unchanged.
 import { getUnitSheet } from './UnitArt.js';
 import { rankSheet } from './RankArt.js';
+import { getRankFrames, RankAnimator } from './EliteArt.js';
 
 const cfg = window.LOADOUT;
 const SLOTS = cfg.slots;
@@ -35,6 +36,21 @@ async function loadAtlas() {
     }
 }
 
+const animated = [];
+let lastMs = 0;
+function tick(ms) {
+    requestAnimationFrame(tick);
+    if (ms - lastMs < 50) return;
+    const dt = ms - lastMs; lastMs = ms;
+    for (let i = animated.length - 1; i >= 0; i--) {
+        const a = animated[i];
+        if (!a.canvas.isConnected) { animated.splice(i, 1); continue; }
+        const c = a.canvas.getContext('2d'); c.clearRect(0, 0, a.canvas.width, a.canvas.height);
+        c.imageSmoothingEnabled = false; a.an.update(Math.min(dt, 100)); a.an.draw(c, a.canvas.width / 2, a.canvas.height - 2, false);
+    }
+}
+requestAnimationFrame(tick);
+
 function drawSprite(canvas, u) {
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
@@ -58,7 +74,11 @@ function drawSprite(canvas, u) {
         ctx.fillText(u.name[0], cell / 2, cell / 2 + cell / 6);
         return;
     }
-    if (u.tier > 0) source = rankSheet(source, cell, u.tier);      // Elite / Godly look
+    {                                                           // Base / Elite / Godly: own animated art
+        const rf = getRankFrames(String(u.sprite), u.tier || 0);
+        if (rf) { canvas.width = rf.cell; canvas.height = rf.cell; animated.push({ canvas, an: new RankAnimator(rf) }); return; }
+        if (u.tier > 0) source = rankSheet(source, cell, u.tier);
+    }      // Elite / Godly look
     ctx.drawImage(source, spot.right[0] * cell, spot.right[1] * cell, cell, cell, 0, 0, cell, cell);
 }
 

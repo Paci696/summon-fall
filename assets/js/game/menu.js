@@ -2,6 +2,8 @@
 import { getArt } from './art.js';
 import { getUnitSheet } from './UnitArt.js';
 import { getHeroSheet } from './HeroArt.js';
+import { getHeroFrames, HeroAnimator } from './HeroAnim.js';
+import { getRankFrames, RankAnimator } from './EliteArt.js';
 
 const canvas = document.getElementById('title-bg');
 const ctx = canvas.getContext('2d');
@@ -16,7 +18,12 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const stars = Array.from({ length: 110 }, () => ({ x: Math.random(), y: Math.random() * 0.62, r: rnd(0.6, 1.8), p: rnd(0, 6.28), s: rnd(0.6, 2) }));
 const flies = Array.from({ length: 34 }, () => ({ x: Math.random(), y: rnd(0.45, 0.95), p: rnd(0, 6.28), s: rnd(0.2, 0.6), c: Math.random() < 0.5 ? '176,112,255' : '255,207,90' }));
 const trees = Array.from({ length: 26 }, (_, i) => ({ x: i / 25 + rnd(-0.02, 0.02), layer: i % 3, f: rnd(0.8, 1.2) }));
-const guards = ['swordsman', 'archer', 'mage', 'healer'];
+// the four guards show the HIGHEST version the player has unlocked: godly > elite > base
+let unlocked = {};
+try { unlocked = JSON.parse(canvas.dataset.units || '{}'); } catch (e) { /* default below */ }
+const guards = ['swordsman', 'archer', 'mage', 'healer'].filter((k) => unlocked[k] !== undefined || !Object.keys(unlocked).length);
+const guardAnims = {};
+let guardT = 0;
 
 function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -96,18 +103,39 @@ function statue(t, cx, groundY) {
     ctx.drawImage(art.crystal, cx - cw / 2, y - ch * 0.35 + bob, cw, ch);
     // little guard line
     const cell = sheet.cell, us = S * 1.35;
+    const dtG = Math.min(100, Math.max(0, (t - guardT) * 1000)); guardT = t;
     guards.forEach((k, i) => {
-        const e = sheet.units[k]; if (!e) return;
-        const f = i < 2 ? e.right : e.left;
-        const ux = cx + (i < 2 ? -1 : 1) * (w * 0.62 + (i % 2) * cell * us * 0.7) - cell * us / 2;
-        const uy = groundY + S * 16 - cell * us + Math.sin(t * 2 + i) * 0.8;
-        ctx.drawImage(sheet.canvas, f[0] * cell, f[1] * cell, cell, cell, ux, uy, cell * us, cell * us);
+        const tier = Math.min(2, unlocked[k] || 0);
+        const fr = getRankFrames(k, tier); if (!fr) return;
+        const an = guardAnims[k] || (guardAnims[k] = new RankAnimator(fr));
+        an.update(dtG);
+        an.play(Math.floor(t / 4 + i) % 3 === 0 && (t % 4) < 0.7 ? 'attack' : 'idle');
+        const gx = cx + (i < 2 ? -1 : 1) * (w * 0.62 + (i % 2) * fr.cell * us * 0.7);
+        an.draw(ctx, gx, groundY + S * 16, i < 2 ? false : true, us);
     });
 }
 
+let heroAnim = null, lastT = 0;
 function hero(t, cx, groundY) {
     const spot = heroSheet.units[heroKey];
     if (!spot) return;
+    if (!heroAnim) { const hf = getHeroFrames(heroKey); if (hf) heroAnim = new HeroAnimator(hf); }
+    if (heroAnim) {                                   // animated hero: idles, and swings every few seconds
+        const dt = Math.max(0, (t - lastT) * 1000); lastT = t; heroAnim.update(Math.min(dt, 100));
+        heroAnim.play(Math.floor(t / 3.5) % 2 && (t % 3.5) < 0.6 ? 'attack' : 'idle');
+        const size = S * 54, feet = groundY + S * 34;
+        const g2 = ctx.createRadialGradient(cx, feet, 2, cx, feet, size * 0.7);
+        g2.addColorStop(0, 'rgba(255,207,90,.35)'); g2.addColorStop(1, 'rgba(255,207,90,0)');
+        ctx.fillStyle = g2; ctx.fillRect(cx - size, feet - size * 0.3, size * 2, size * 0.6);
+        heroAnim.draw(ctx, cx, feet, false, size / 48 * 0.92);
+        if (heroName) {
+            ctx.font = Math.max(9, S * 3) + 'px "Press Start 2P", monospace'; ctx.textAlign = 'center';
+            const label = heroName.toUpperCase(), ty = feet + S * 10;
+            ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillText(label, cx + 2, ty + 2);
+            ctx.fillStyle = '#ffcf5a'; ctx.fillText(label, cx, ty); ctx.textAlign = 'left';
+        }
+        return;
+    }
     const cell = heroSheet.cell, size = S * 54, sc = size / cell;
     const feet = groundY + S * 34;
     const x = cx - size / 2, y = feet - size * 0.92 + Math.sin(t * 2.2) * S * 0.8;

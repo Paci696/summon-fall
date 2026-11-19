@@ -7,6 +7,7 @@ import { getHeroSheet } from './HeroArt.js';
 import { getNightSheet } from './NightArt.js';
 import { rankSheet, tintSheet } from './RankArt.js';
 import { getRankFrames, RankAnimator } from './EliteArt.js';
+import { getHeroFrames, HeroAnimator } from './HeroAnim.js';
 
 const LOOKS = {
     miner:         { shape: 'circle',   color: '#e0c040' },
@@ -65,13 +66,18 @@ export class Unit extends Entity {
         this.lifespan = null;   // seconds until an undead crumbles
     }
     attachSprite(assets) {
-        // Elite / Godly player units have their own animated art (EliteArt.js)
-        if (!this.isUndead && this.faction === 'player' && this.rank > 0) {
-            const frames = getRankFrames(String(this.stats.sprite_key), this.rank);
+        // Base, Elite and Godly player units all use the animated art in EliteArt.js
+        if (!this.isUndead && this.faction === 'player' && !String(this.stats.sprite_key).startsWith('hero_')) {
+            const frames = getRankFrames(String(this.stats.sprite_key), this.rank || 0);
             if (frames) { this.animator = new RankAnimator(frames); return; }
         }
         const img = assets.getImage('units');
         const atlas = assets.getJson('units');
+        const hk = String(this.stats.sprite_key);
+        if (hk.startsWith('hero_') && !(atlas && atlas.units && atlas.units[hk])) {   // animated heroes (HeroAnim.js)
+            const hf = getHeroFrames(hk);
+            if (hf) { this.animator = new HeroAnimator(hf); return; }
+        }
         let spot = atlas && atlas.units && atlas.units[this.stats.sprite_key];
         let source = img;
         let cell = atlas ? atlas.cell : 32;

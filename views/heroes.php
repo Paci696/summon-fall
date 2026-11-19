@@ -36,6 +36,7 @@ $heroes = Hero::activeAll();
 $selected = Hero::selectedFor($uid);
 $viewId = (int) ($_GET['hero'] ?? $selected->getId());
 $view = Hero::byId($viewId) ?? $selected;
+$lvl = HeroLevel::info($uid, $view->getId());
 $equipped = Inventory::equipped($uid, $view->getId());
 $totals = Inventory::totals($uid, $view->getId());
 $inventory = Inventory::forUser($uid);
@@ -100,6 +101,12 @@ $flash = $flash ?? null;
     .detail .stage canvas { position:relative; z-index:1; width:250px; height:250px; margin-bottom:14px; filter:drop-shadow(0 8px 6px rgba(0,0,0,.7)); animation:heroBob 2.2s ease-in-out infinite; }
     @keyframes heroBob { 50% { transform:translateY(-6px); } }
     .detail .body { padding:18px; }
+    .lvl { display:flex; align-items:center; gap:12px; margin:10px 0 14px; }
+    .lvl .badge { font:.7rem 'Press Start 2P', monospace; color:#1a1424; background:var(--gold); padding:8px 10px; box-shadow:0 3px 0 #b88a22; white-space:nowrap; }
+    .lvl .xp { flex:1; }
+    .lvl .xpbar { height:10px; background:#0b0a1c; border:1px solid #2c2858; }
+    .lvl .xpbar i { display:block; height:100%; background:linear-gradient(90deg,#b070ff,#ffcf5a); }
+    .lvl small { display:block; color:#9a9bc8; margin-top:4px; font-size:.72rem; }
     .detail h2::after { display:none; }
     .abilities { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin:12px 0; }
     .ab { background:#10101f; border:2px solid var(--line); border-left-width:5px; padding:9px 10px; }
@@ -165,6 +172,13 @@ $flash = $flash ?? null;
     <div class="stage"><canvas width="48" height="48" data-hero="<?= htmlspecialchars($spriteKeyOf($view)) ?>"></canvas></div>
     <div class="body">
         <h2 style="margin:0;display:block"><?= htmlspecialchars($view->getName()) ?> <span class="role"><?= htmlspecialchars($view->getRole()) ?></span></h2>
+        <div class="lvl">
+            <span class="badge">LV <?= $lvl['level'] ?></span>
+            <div class="xp">
+                <div class="xpbar"><i style="width:<?= $lvl['need'] > 0 ? (int) round($lvl['xp'] / $lvl['need'] * 100) : 100 ?>%"></i></div>
+                <small><?= $lvl['need'] > 0 ? $lvl['xp'] . ' / ' . $lvl['need'] . ' XP to next level' : 'MAX LEVEL' ?> &middot; +<?= $lvl['bonus'] ?>% HP and damage</small>
+            </div>
+        </div>
         <p style="opacity:.85"><?= htmlspecialchars($view->getDescription()) ?></p>
         <?= $bar('HP', $view->getHp(), $maxOf['hp'], '#4fd05f', $totals['hp_pct'] ? '+' . $totals['hp_pct'] . '%' : '') ?>
         <?= $bar('DMG', $view->getDamage(), $maxOf['damage'], '#ff7a5a', $totals['damage_pct'] ? '+' . $totals['damage_pct'] . '%' : '') ?>

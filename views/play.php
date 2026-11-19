@@ -6,7 +6,14 @@ $mapId = (int) ($_GET['map'] ?? 1);
 if (!in_array($mapId, [1, 2, 3, 4], true)) {
     $mapId = 1;
 }
-$config = ['baseUrl' => BASE_URL, 'mode' => $mode, 'username' => $currentUser->getUsername(),'mapId' => $mapId, 'debug' => DEBUG, 'csrf' => Csrf::token()];
+$heroLevel = 1; $heroXp = 0; $heroName = '';
+try {
+    $hh = Hero::selectedFor($currentUser->getId());
+    $heroXp = HeroLevel::totalXp($currentUser->getId(), $hh->getId());
+    $heroLevel = HeroLevel::fromXp($heroXp)['level'];
+    $heroName = $hh->getName();
+} catch (Throwable $e) { /* level 1 */ }
+$config = ['heroLevel' => $heroLevel, 'heroXp' => $heroXp, 'heroName' => $heroName, 'baseUrl' => BASE_URL, 'mode' => $mode, 'username' => $currentUser->getUsername(),'mapId' => $mapId, 'debug' => DEBUG, 'csrf' => Csrf::token()];
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -38,7 +38,7 @@ class Skill extends Model
         $this->heroId = isset($s['hero_id']) ? (int) $s['hero_id'] : null;
     }
     public const BRANCHES = ['warrior', 'ranger', 'economy', 'summoner', 'hero'];
-    public const STATS = ['hp', 'damage', 'speed', 'range', 'cost', 'start_gold', 'summon_cooldown', 'meteor', 'cdr', 'ability', 'revive', 'raise', 'horde'];
+    public const STATS = ['hp', 'damage', 'speed', 'range', 'cost', 'start_gold', 'summon_cooldown', 'meteor', 'cdr', 'ability', 'revive', 'raise', 'horde', 'spell_frost','spell_heal','spell_rally','spell_storm','spell_cdr'];
     public function getName(): string { return $this->name; }
     public function getDescription(): string { return $this->description; }
     public function getBranch(): string { return $this->branch; }

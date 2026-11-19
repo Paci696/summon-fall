@@ -8,6 +8,7 @@ import { getNightSheet } from './NightArt.js';
 import { rankSheet, tintSheet } from './RankArt.js';
 import { getRankFrames, RankAnimator } from './EliteArt.js';
 import { getHeroFrames, HeroAnimator } from './HeroAnim.js';
+import { getMonsterFrames, MonsterAnimator } from './MonsterArt.js';
 
 const LOOKS = {
     miner:         { shape: 'circle',   color: '#e0c040' },
@@ -70,6 +71,18 @@ export class Unit extends Entity {
         if (!this.isUndead && this.faction === 'player' && !String(this.stats.sprite_key).startsWith('hero_')) {
             const frames = getRankFrames(String(this.stats.sprite_key), this.rank || 0);
             if (frames) { this.animator = new RankAnimator(frames); return; }
+        }
+        // monsters, bosses and raised undead use the redesigned animated art (MonsterArt.js)
+        const mk = String(this.stats.sprite_key);
+        if (this.faction === 'mob' || this.isUndead) {
+            const mf = getMonsterFrames(mk);
+            if (mf) {
+                let sheet = mf.canvas;
+                if (this.isUndead) sheet = tintSheet(sheet, UNDEAD_FILTER);
+                else if (this.tier) sheet = tintSheet(sheet, TIER_FILTERS[((this.tier - 1) % 4) + 1]);
+                this.animator = new MonsterAnimator(mf, sheet);
+                return;
+            }
         }
         const img = assets.getImage('units');
         const atlas = assets.getJson('units');

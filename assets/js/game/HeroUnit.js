@@ -1,5 +1,6 @@
 // HeroUnit.js - your hero: a stronger Unit with three abilities, equipment bonuses and a revive timer.
 import { Unit } from './Unit.js';
+import { fxSpawn, fxUpdate, fxDraw } from './HeroSkillFx.js';
 
 export const HERO_KEYS = ['KeyR', 'KeyT', 'KeyY'];       // ability hotkeys (change them here)
 const AIMED = new Set(['dash', 'line', 'area']);          // these are cast at the mouse cursor
@@ -47,6 +48,7 @@ export class HeroUnit extends Unit {
     }
 
     update(dt, game) {
+        fxUpdate(this, dt);
         for (let i = 0; i < this.cd.length; i++) if (this.cd[i] > 0) this.cd[i] = Math.max(0, this.cd[i] - dt);
         if (this.shieldT > 0) this.shieldT -= dt;
         if (this.rapidT > 0) this.rapidT -= dt;
@@ -172,6 +174,7 @@ export class HeroUnit extends Unit {
                 g.heroFx.push({ type: 'ring', x: this.x, y: this.y, r: a.radius, t: 0, life: 0.6, color: '120,255,160' });
                 break;
         }
+        fxSpawn(this, a, { dx, dy, zx: this.x + dx * Math.min(240, len), zy: this.y + dy * Math.min(240, len) });
         this.cd[slot] = a.cooldownMax;
         return true;
     }
@@ -237,6 +240,7 @@ export class HeroUnit extends Unit {
     }
 
     drawExtras(ctx, x, y) {
+        fxDraw(this, ctx);
         const r = this.radius;
         ctx.save();
         ctx.strokeStyle = '#ffcf5a';

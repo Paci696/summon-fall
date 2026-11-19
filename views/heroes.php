@@ -282,14 +282,30 @@ $flash = $flash ?? null;
 import { getHeroSheet } from '<?= BASE_URL ?>/assets/js/game/HeroArt.js';
 import { drawItemIcon } from '<?= BASE_URL ?>/assets/js/game/ItemArt.js';
 
+import { getHeroFrames, HeroAnimator } from '<?= BASE_URL ?>/assets/js/game/HeroAnim.js';
 const sheet = getHeroSheet();
+const anims = [];
 document.querySelectorAll('canvas[data-hero]').forEach((cv) => {
+    const fr = getHeroFrames(cv.dataset.hero);
+    if (fr) { anims.push({ cv, an: new HeroAnimator(fr) }); return; }          // animated (redrawn art)
     const spot = sheet.units[cv.dataset.hero];
     if (!spot) return;
     const g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;
     g.drawImage(sheet.canvas, spot.right[0] * sheet.cell, 0, sheet.cell, sheet.cell, 0, 0, 48, 48);
 });
+let last = 0, n = 0;
+(function tick(ms) {
+    requestAnimationFrame(tick);
+    const dt = Math.min(100, ms - last); last = ms; n++;
+    for (const a of anims) {
+        const g = a.cv.getContext('2d');
+        g.clearRect(0, 0, 48, 48); g.imageSmoothingEnabled = false;
+        a.an.update(dt);
+        a.an.play(Math.floor(ms / 3000) % 3 === 0 && (ms % 3000) < 700 ? 'attack' : 'idle');
+        a.an.draw(g, 24, 46, false, 1);
+    }
+})(0);
 document.querySelectorAll('canvas[data-slot]').forEach((cv) => {
     const g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;

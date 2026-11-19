@@ -19,6 +19,7 @@ function el(name, attrs = {}, parent = null, text = null) {
 // ---------- small icons per stat ----------
 function glyph(stat, g, col) {
     const a = { class: 'st-glyph', stroke: col };
+    const a2 = () => a;
     switch (stat) {
         case 'hp': el('path', { ...a, fill: col, d: 'M0 7 C-11 -1 -7 -9 0 -4 C7 -9 11 -1 0 7Z' }, g); break;
         case 'damage': el('path', { ...a, d: 'M-7 7 L6 -6 M2 -7 L7 -7 L7 -2 M-7 3 L-3 7' }, g); break;
@@ -28,6 +29,11 @@ function glyph(stat, g, col) {
         case 'summon_cooldown': case 'cdr': el('circle', { ...a, r: 7 }, g); el('path', { ...a, d: 'M0 -4 L0 0 L3 2' }, g); break;
         case 'meteor': el('circle', { ...a, fill: col, r: 4, cx: 2, cy: 2 }, g); el('path', { ...a, d: 'M-1 -1 L-8 -8 M-3 2 L-9 -3' }, g); break;
         case 'ability': el('path', { ...a, fill: col, d: 'M0 -8 L2.4 -2.5 L8 -2.5 L3.6 1.5 L5 7.5 L0 4 L-5 7.5 L-3.6 1.5 L-8 -2.5 L-2.4 -2.5Z' }, g); break;
+        case 'spell_frost': for (let a = 0; a < 3; a++) { const r = a * 1.047; el('path', { ...a2(), d: `M${(-8 * Math.cos(r)).toFixed(1)} ${(-8 * Math.sin(r)).toFixed(1)} L${(8 * Math.cos(r)).toFixed(1)} ${(8 * Math.sin(r)).toFixed(1)}` }, g); } break;
+        case 'spell_heal': el('path', { ...a, d: 'M0 -8 L0 8 M-8 0 L8 0' }, g); break;
+        case 'spell_rally': el('path', { ...a, fill: col, d: 'M-8 -3 L0 -3 L8 -9 L8 9 L0 3 L-8 3Z' }, g); break;
+        case 'spell_storm': el('path', { ...a, fill: col, d: 'M3 -10 L-5 1 L0 1 L-3 10 L6 -2 L1 -2Z' }, g); break;
+        case 'spell_cdr': el('circle', { ...a, r: 7 }, g); el('path', { ...a, d: 'M0 -4 L0 0 L3 2 M-9 -9 L-6 -6' }, g); break;
         case 'revive': el('path', { ...a, d: 'M0 -7 L0 7 M-7 0 L7 0' }, g); break;
         case 'raise': el('circle', { ...a, r: 5, cx: 0, cy: -2 }, g); el('path', { ...a, d: 'M-3 4 L3 4 M-2 7 L2 7' }, g); break;
         case 'horde': el('circle', { ...a, r: 3, cx: -4, cy: 0 }, g); el('circle', { ...a, r: 3, cx: 4, cy: 0 }, g); el('circle', { ...a, r: 3, cx: 0, cy: -5 }, g); break;
@@ -82,10 +88,42 @@ function layout(groupKey) {
 
 // ---------- hub pictures (generated sprites, same art as the game) ----------
 const hubCache = {};
+// --- unit art for the tree: base / Elite / Godly versions (EliteArt.js) and the redrawn heroes (HeroRedraw.js) ---
+const rankCache = {};
+async function rankImg(key, rank) {
+    const id = key + ':' + rank;
+    if (id in rankCache) return rankCache[id];
+    rankCache[id] = null;
+    try {
+        const m = await import('./game/EliteArt.js');
+        const f = m.getRankFrames(key, rank);
+        if (f) {
+            const c = document.createElement('canvas'); c.width = c.height = f.cell;
+            const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+            g.drawImage(f.canvas, f.index.idle[0] * f.cell, 0, f.cell, f.cell, 0, 0, f.cell, f.cell);
+            rankCache[id] = c.toDataURL();
+        }
+    } catch (e) { /* falls back to the old art */ }
+    return rankCache[id];
+}
+async function heroImg(key) {
+    try {
+        const m = await import('./game/HeroRedraw.js');
+        const f = m.getRedrawnHero(key);
+        if (!f) return null;
+        const c = document.createElement('canvas'); c.width = c.height = f.cell;
+        const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+        g.drawImage(f.canvas, f.index.idle[0] * f.cell, 0, f.cell, f.cell, 0, 0, f.cell, f.cell);
+        return c.toDataURL();
+    } catch (e) { return null; }
+}
+
 async function hubImage(group) {
     if (group in hubCache) return hubCache[group];
     hubCache[group] = null;
     try {
+        if (group.startsWith('line:')) { const u = await rankImg(group.slice(5), 0); if (u) return (hubCache[group] = u); }
+        if (group.startsWith('hero:')) { const h0 = cfg.heroes.find((x) => 'hero:' + x.id === group); const u = h0 && await heroImg(h0.sprite_key); if (u) return (hubCache[group] = u); }
         let sheet, key;
         if (group.startsWith('hero:')) {
             const h = cfg.heroes.find((x) => 'hero:' + x.id === group);
@@ -185,6 +223,11 @@ async function render(keepView = false) {
         el('text', { class: 'st-hubtext' }, hub, label.charAt(0).toUpperCase());
     }
 
+    // art for the Elite / Godly unit-unlock nodes
+    const lineKey = state.group.startsWith('line:') ? state.group.slice(5) : null;
+    const gateArt = {};
+    if (lineKey) for (const t of [1, 2]) gateArt[t] = await rankImg(lineKey, t);
+
     // nodes
     for (const n of L.nodes) {
         const p = L.pos.get(n.id);
@@ -196,7 +239,9 @@ async function render(keepView = false) {
         el('circle', { class: 'body', r, stroke: col }, g);
         el('circle', { class: 'halo', r: r + 6 }, g);
         const ic = el('g', {}, g);
-        glyph(n.gate ? 'unit' : n.stat, ic, n.state === 'locked' ? '#8886a8' : col);
+        if (n.gate && gateArt[n.utier]) {
+            el('image', { href: gateArt[n.utier], x: -24, y: -29, width: 48, height: 48, style: 'image-rendering:pixelated' + (n.state === 'locked' ? ';filter:grayscale(1) brightness(.55)' : '') }, ic);
+        } else glyph(n.gate ? 'unit' : n.stat, ic, n.state === 'locked' ? '#8886a8' : col);
         const b = el('g', { class: 'st-badge', transform: `translate(0,${r + 2})` }, g);
         el('rect', { x: -15, y: -7, width: 30, height: 13, rx: 2 }, b);
         el('text', { x: 0, y: 3 }, b, `${n.level}/${n.max}`);

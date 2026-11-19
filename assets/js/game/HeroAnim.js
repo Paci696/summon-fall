@@ -2,6 +2,7 @@
 // Frames are baked ONCE into a sheet, so there is no per-frame cost. Each hero also gets its own aura + motes.
 // Same interface as SpriteSkin: play(name) / update(ms) / draw(ctx, x, feetY, flip) / height.
 import { getHeroSheet } from './HeroArt.js';
+import { getRedrawnHero } from './HeroRedraw.js';
 
 const FRAMES = { idle: 4, walk: 4, attack: 4 };
 const ORDER = ['idle', 'walk', 'attack'];
@@ -44,6 +45,8 @@ function pose(anim, i) {
 const cache = {};
 export function getHeroFrames(key) {
     if (cache[key] !== undefined) return cache[key];
+    const redrawn = getRedrawnHero(key);                      // brand new art (HeroRedraw.js)
+    if (redrawn) return (cache[key] = redrawn);
     const sheet = getHeroSheet();
     const spot = sheet.units[key];
     if (!spot) return (cache[key] = null);

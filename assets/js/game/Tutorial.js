@@ -1,8 +1,8 @@
 import { Unit } from './Unit.js';
 
 const FINISH_LINES = [
-    'Nice work! Spend souls in the Skill Tree,',
-    'then survive the waves in Endless mode.',
+    'Nice work! Spend souls in the Skill Tree, level up your',
+    'hero and survive the waves in Endless mode.',
     'Press Enter to return to the menu.',
 ];
 
@@ -57,34 +57,26 @@ export class Tutorial {
                 },
             },
             {
-                lines: ['Wrong unit? Select it and press Delete twice.',
-                        'Try it: press 1 for a spare Miner, select it, delete it.'],
-                onStart: (g) => { if (g.gold < 60) g.gold = 60; },
-                check: (g) => g.unitsDeleted > 0,
-            },
-            {
                 lines: ['A Slime attacks! Defeat it. Tip: right-click an',
                         'enemy to make selected units focus it.'],
-                onStart: (g) => { this.ensureFighter(g); this.spawnSlime(g); },
+                onStart: (g) => this.spawnSlime(g),
                 check: (g) => g.kills >= 1,
             },
-                        {
-                lines: ['Healers mend hurt allies and stay behind the army.',
-                        'Unlock Elite and Godly units in the Skill Tree.',
+            {
+                lines: ['This is your HERO (gold ring). It fights for free and',
+                        'has 3 skills: R, T and Y. Cast one now!'],
+                check: (g) => !g.heroUnit || g.heroUnit.cd.some((c) => c > 0),
+            },
+            {
+                lines: ['Look at the bar at the top: your hero LEVEL (max 100).',
+                        'Every run earns XP. Higher level = more HP and damage.',
                         'Press Enter to continue.'],
                 check: (g) => g.input.wasPressed('Enter'),
             },
             {
-                lines: ['Pick your summon bar before a run in the Loadout:',
-                        'Play Endless > Edit loadout (up to 10 units).',
-                        'Press Enter to continue.'],
-                check: (g) => g.input.wasPressed('Enter'),
-            },
-            {
-                lines: ['E aims the Meteor spell once you unlock it.',
-                        'Every 10th wave a boss arrives and monsters grow',
-                        'stronger. Red arrows point at unseen enemies.',
-                        'Press Enter to continue.'],
+                lines: ['In the Skill Tree, unlock ELITE and GODLY versions of',
+                        'each unit, then pick them in Loadout. They look and',
+                        'fight better. Press Enter to continue.'],
                 check: (g) => g.input.wasPressed('Enter'),
             },
         ];
@@ -93,15 +85,7 @@ export class Tutorial {
     get done() {
         return this.index >= this.steps.length;
     }
-    // Makes sure there is a fighter for the slime step (the player may have deleted theirs)
-    ensureFighter(g) {
-        if (g.units.some((u) => u.alive && u.faction === 'player' && u.canFight())) return;
-        const row = g.summonable.find((s) => s.class_type === 'swordsman') || g.summonable.find((s) => s.class_type !== 'miner');
-        if (!row) return;
-        g.gold += row.cost;
-        g.summonCooldown = 0;
-        g.trySummon(row);
-    }
+
     spawnSlime(g) {
         const row = g.data.mobs.find((m) => m.class_type === 'slime') || g.data.mobs[0];
         if (!row) return;
@@ -131,7 +115,7 @@ export class Tutorial {
 
     draw(ctx) {
         const lines = this.done ? FINISH_LINES : this.steps[this.index].lines;
-        const x = 132, y = 66, w = 376, h = 22 + lines.length * 14;
+        const w = 420, x = Math.round((ctx.canvas.width - w) / 2), y = 66, h = 22 + lines.length * 14;   // centred for the 960 view
 
         ctx.fillStyle = 'rgba(15, 15, 35, 0.92)';
         ctx.fillRect(x, y, w, h);

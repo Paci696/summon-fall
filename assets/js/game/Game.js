@@ -24,6 +24,8 @@ import { drawHeroLevelHud } from './HeroLevelHud.js';
 import { HeroUnit, HERO_KEYS } from './HeroUnit.js';
 import { getHeroSheet } from './HeroArt.js';
 import { drawItemIcon, RARITY_COLORS } from './ItemArt.js';
+import { drawModernHud } from './ModernHud.js';
+import { updateGeneralSpells } from './GeneralSpells.js';
 
 const RAISE_RANGE = 260;      // Necromancer: kills this close to you can rise
 const RAISE_RUN_CAP = 40;     // most undead you can raise in one run
@@ -137,7 +139,8 @@ export class Game {
 
         const raw = this.data.player_units;
         const picked = this.config.mode === 'tutorial' ? [] : (this.data.loadout || []).map((id) => raw.find((u) => u.id === id)).filter(Boolean);
-        this.summonable = (picked.length ? picked : raw.slice(0, LOADOUT_SLOTS)).map((u) => applyBonuses(u, this.bonuses));
+        const pool = this.config.mode === 'tutorial' ? raw.filter((u) => !u.unit_tier) : raw;   // tutorial teaches the 5 base units only
+        this.summonable = (picked.length ? picked : pool.slice(0, LOADOUT_SLOTS)).map((u) => applyBonuses(u, this.bonuses));
         this.gold = START_GOLD + flatBonus(this.bonuses, 'start_gold');
         this.meteorLevel = Math.round(flatBonus(this.bonuses, 'meteor'));
         this.summonCooldownMax = SUMMON_COOLDOWN * Math.max(0.3, 1 + flatBonus(this.bonuses, 'summon_cooldown') / 100);
@@ -147,7 +150,7 @@ export class Game {
         this.summonBar = new SummonBar(this);
         this.stanceBar = new StanceBar(this);
         this.camera.centerOn(this.base.x, this.base.y - 40);
-        if (this.config.mode !== 'tutorial' && this.data.hero) {
+        if (this.data.hero) {
             this.heroData = this.data.hero;
             this.spawnHero();
         }
@@ -1321,6 +1324,7 @@ export class Game {
         if (this.dayNight) this.dayNight.update(dt);
         if (this.tutorial) this.tutorial.update(dt);
         this.updateMeteors(dt);
+        updateGeneralSpells(this, dt);
         this.updateHero(dt);
         this.updateHeroEffects(dt);
         this.updatePickups(dt);
@@ -1427,7 +1431,7 @@ export class Game {
         this.drawDeleteButton(ctx);
         this.summonBar.drawTooltip(ctx);
         this.drawSoundHint(ctx);
-        this.drawHud(ctx); drawHeroLevelHud(ctx, this, VIEW_W);
+        this.drawHud(ctx); 
         this.drawBossBar(ctx);
         this.drawBanner(ctx);
         if (this.tutorial) this.tutorial.draw(ctx);
@@ -1449,6 +1453,7 @@ export class Game {
     }
 
     drawHud(ctx) {
+        if (drawModernHud(ctx, this, VIEW_W)) return;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
         ctx.fillRect(4, 4, 150, 54);
         ctx.fillStyle = '#ffd84a';

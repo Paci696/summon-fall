@@ -188,7 +188,8 @@ export class Unit extends Entity {
                 }
             } else if (this.stance !== 'hold' || this.forcedTarget || this.faction === 'mob') {
                 this.state = 'moving';
-                this.moveToward(target.x, target.y, dt);
+                const ap = this.approachPoint(target);
+                this.moveToward(ap.x, ap.y, dt);
             } else {
                 this.state = 'idle';
             }
@@ -292,10 +293,58 @@ export class Unit extends Entity {
         return true;
     }
 
+    // ---- walking: straight when clear, A* otherwise, with jam detection ----
+
+    // True when the unit's whole body (not just its centre line) can walk straight to the target
+    wideClear(pf, tx, ty) {
+        const dx = tx - this.x, dy = ty - this.y, d = Math.hypot(dx, dy) || 1;
+        const r = Math.max(4, this.radius * 0.9), ox = -dy / d * r, oy = dx / d * r;
+        return pf.lineClear(this.x, this.y, tx, ty) && pf.lineClear(this.x + ox, this.y + oy, tx + ox, ty + oy)
+            && pf.lineClear(this.x - ox, this.y - oy, tx - ox, ty - oy);
+    }
+
+    // Notices when the unit is walking but not getting anywhere (tree corner, other monsters) and reacts
+    trackStuck(dt) {
+        const now = performance.now();
+        if (now - (this.lastMv || 0) > 200) { this.stuckClock = 0; this.stuckX = this.x; this.stuckY = this.y; this.stuckCount = 0; }
+        this.lastMv = now;
+        this.noDirectT = Math.max(0, (this.noDirectT || 0) - dt);
+        this.stuckClock = (this.stuckClock || 0) + dt;
+        if (this.stuckClock < 0.5) return;
+        const moved = Math.hypot(this.x - this.stuckX, this.y - this.stuckY);
+        const expect = this.speed * (this.slowT > 0 ? 0.5 : 1) * 0.5;
+        this.stuckClock = 0; this.stuckX = this.x; this.stuckY = this.y;
+        if (moved >= expect * 0.3) { this.stuckCount = 0; return; }
+        this.stuckCount = (this.stuckCount || 0) + 1;
+        this.noDirectT = 1.5;                       // stop trusting the straight line, follow the A* path
+        this.path = null; this.pathKey = ''; this.repathTimer = 0;
+        if (this.stuckCount >= 2) {                 // still jammed: step sideways for a moment
+            this.sideDir = Math.random() < 0.5 ? -1 : 1; this.sideT = 0.4; this.stuckCount = 0;
+        }
+    }
+
+    // Melee units aim for their own spot around the target so a crowd spreads out instead of queueing
+    approachPoint(t) {
+        const game = this.game;
+        const reach = this.reach ? this.reach(t) : 0;
+        if (!game || !game.map || reach > 48) return t;
+        if (this.slotAngle === undefined) this.slotAngle = Math.random() * Math.PI * 2;
+        const d = Math.max(3, reach * 0.7);
+        const x = t.x + Math.cos(this.slotAngle) * d, y = t.y + Math.sin(this.slotAngle) * d;
+        return game.map.isBlocked(Math.floor(x / TILE), Math.floor(y / TILE)) ? t : { x, y };
+    }
+
     // Walks straight when the way is clear, otherwise follows an A* path. True when arrived.
     moveToward(tx, ty, dt) {
         const pf = this.game && this.game.pathfinder;
-        if (!pf || pf.lineClear(this.x, this.y, tx, ty)) {
+        this.trackStuck(dt);
+        if (this.sideT > 0) {                                           // sidestep out of a jam
+            this.sideT -= dt;
+            const dx = tx - this.x, dy = ty - this.y, d = Math.hypot(dx, dy) || 1;
+            this.stepToward(this.x + (-dy / d) * this.sideDir * 24 + dx / d * 6, this.y + (dx / d) * this.sideDir * 24 + dy / d * 6, dt);
+            return false;
+        }
+        if (!pf || ((this.noDirectT || 0) <= 0 && this.wideClear(pf, tx, ty))) {
             this.path = null;
             this.pathKey = '';
             return this.stepToward(tx, ty, dt);

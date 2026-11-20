@@ -1,5 +1,6 @@
 // MonsterArt.js - redesigned, animated monsters and bosses (idle 4 / walk 4 / attack 4 frames each):
 // slime, goblin, goblin_archer, zombie, ghoul, giant, boss (orc warlord), boss_bone (bone colossus).
+import { getBossFrames } from './BossArt.js';
 // Frames are baked once. MonsterAnimator has the same interface as SpriteSkin (play / update / draw / height).
 const INK = '#120e1c';
 const FR = { idle: 4, walk: 4, attack: 4 }, ORDER = ['idle', 'walk', 'attack'];
@@ -186,6 +187,7 @@ const poseFor = (a, i) => a === 'idle' ? { bob: [0, 1, 1, 0][i], step: 0, swing:
 
 const cache = {};
 export function getMonsterFrames(key) {
+    if (key === 'boss' || key === 'boss_bone') return getBossFrames(key);        // bosses live in BossArt.js (big frames)
     const d = DRAW[key]; if (!d) return null;
     if (cache[key]) return cache[key];
     const [cell, feet] = SPEC[key];
@@ -199,16 +201,16 @@ export class MonsterAnimator {
     constructor(frames, canvasOverride) {
         this.f = frames; this.sheet = canvasOverride || frames.canvas;
         this.anim = 'idle'; this.t = Math.random() * 900; this.s = Math.random() * 6;
-        this.height = frames.feet - (frames.boss ? 6 : 8);
+        this.height = frames.hgt || (frames.feet - 8);
     }
     play(n) { if (!this.f.index[n]) n = 'idle'; if (n !== this.anim) { this.anim = n; this.t = 0; } }
     update(ms) { this.t += ms; this.s += ms / 1000; }
     draw(ctx, x, y, flip) {
-        const f = this.f, list = f.index[this.anim], i = Math.floor(this.t / SPEED[this.anim]) % list.length, cell = f.cell;
+        const f = this.f, list = f.index[this.anim], i = Math.floor(this.t / SPEED[this.anim]) % list.length, cell = f.cell, cw = f.cw || cell, ch = f.ch || cell;
         if (f.boss) this.aura(ctx, x, y);
         ctx.save();
         if (flip) { ctx.translate(Math.round(x) * 2, 0); ctx.scale(-1, 1); }
-        ctx.drawImage(this.sheet, list[i] * cell, 0, cell, cell, Math.round(x - cell / 2), Math.round(y - f.feet - 1), cell, cell);
+        ctx.drawImage(this.sheet, list[i] * cw, 0, cw, ch, Math.round(x - cw / 2), Math.round(y - f.feet - 1), cw, ch);
         ctx.restore();
         if (f.boss) this.embers(ctx, x, y);
         return true;
@@ -218,10 +220,10 @@ export class MonsterAnimator {
         const bone = this.f.key === 'boss_bone', col = bone ? '58,240,160' : '255,70,40', p = 0.5 + 0.5 * Math.sin(this.s * 3);
         ctx.save();
         ctx.globalAlpha = 0.18 + 0.12 * p; ctx.fillStyle = 'rgb(' + col + ')';
-        ctx.beginPath(); ctx.ellipse(Math.round(x), Math.round(y), 30, 11, 0, 0, 6.3); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(Math.round(x), Math.round(y), 38, 14, 0, 0, 6.3); ctx.fill();
         ctx.globalAlpha = 0.5 + 0.3 * p; ctx.strokeStyle = 'rgb(' + col + ')'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.ellipse(Math.round(x), Math.round(y), 34 + p * 3, 12 + p, 0, 0, 6.3); ctx.stroke();
-        for (let k = 0; k < 6; k++) { const an = this.s * 0.8 + k * 1.047; ctx.fillStyle = 'rgb(' + col + ')'; ctx.fillRect(Math.round(x + Math.cos(an) * 34), Math.round(y + Math.sin(an) * 12), 2, 2); }
+        ctx.beginPath(); ctx.ellipse(Math.round(x), Math.round(y), 44 + p * 3, 15 + p, 0, 0, 6.3); ctx.stroke();
+        for (let k = 0; k < 6; k++) { const an = this.s * 0.8 + k * 1.047; ctx.fillStyle = 'rgb(' + col + ')'; ctx.fillRect(Math.round(x + Math.cos(an) * 44), Math.round(y + Math.sin(an) * 15), 2, 2); }
         ctx.restore();
     }
     embers(ctx, x, y) {
@@ -230,7 +232,7 @@ export class MonsterAnimator {
         for (let k = 0; k < 5; k++) {
             const ph = (this.s * 0.6 + k / 5) % 1; ctx.globalAlpha = Math.sin(ph * Math.PI) * 0.9;
             ctx.fillStyle = bone ? (k % 2 ? '#d8fff0' : '#3af0a0') : (k % 2 ? '#ffd080' : '#ff6a30');
-            ctx.fillRect(Math.round(x + Math.sin(this.s * 1.3 + k * 2) * 20), Math.round(y - 10 - ph * 60), 2, 2);
+            ctx.fillRect(Math.round(x + Math.sin(this.s * 1.3 + k * 2) * 28), Math.round(y - 10 - ph * 80), 2, 2);
         }
         ctx.restore();
     }

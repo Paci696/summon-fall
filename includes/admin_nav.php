@@ -8,6 +8,7 @@ $adminLinks = [
     'skills.php'    => 'Skills',
     'heroes.php'    => 'Heroes',
     'items.php'     => 'Items',
+    'catalog.php' => 'Catalog',
     'users.php'     => 'Users',
 ];
 ?>

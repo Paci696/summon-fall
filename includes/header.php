@@ -7,6 +7,7 @@ $cssVersion = @filemtime(BASE_PATH . '/assets/css/main.css') ?: 1;
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="data:,">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(($pageTitle ?? 'Home') . ' - ' . APP_NAME) ?></title>

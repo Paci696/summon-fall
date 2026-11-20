@@ -3,7 +3,7 @@
 class Inventory
 {
     // Waves a run must reach before a rarity may drop (checked on the server)
-    private const MIN_WAVE = ['common' => 0, 'uncommon' => 0, 'rare' => 3, 'epic' => 8, 'legendary' => 10];
+    private const MIN_WAVE = ['common' => 0, 'uncommon' => 0, 'rare' => 3, 'epic' => 8, 'legendary' => 10, 'mythical' => 15];
 
     // Every item the player owns, with the hero it is equipped on (if any)
     public static function forUser(int $userId): array
@@ -15,7 +15,7 @@ class Inventory
              JOIN items i ON i.id = pi.item_id
              LEFT JOIN hero_equipment he ON he.player_item_id = pi.id AND he.user_id = pi.user_id
              WHERE pi.user_id = ?
-             ORDER BY FIELD(i.rarity,'legendary','epic','rare','uncommon','common'), i.slot, i.name, pi.id",
+             ORDER BY FIELD(i.rarity,'mythical','legendary','epic','rare','uncommon','common'), i.slot, i.name, pi.id",
             [$userId]
         );
     }

@@ -87,6 +87,7 @@ export class Game {
         this.selected = new Set();
         this.drag = null;
         this.paused = false;
+        window.__game = this;
         this.gameOver = false;
         this.endReason = '';
         this.runMessage = '';
@@ -726,10 +727,10 @@ export class Game {
 
     rollRarity(boss) {
         const w = this.spawner ? this.spawner.wave : 0;
-        const wt = { common: 60, uncommon: 28, rare: w >= 3 ? 9 : 0, epic: w >= 8 ? 2.5 : 0, legendary: w >= 10 ? 0.6 : 0 };
+        const wt = { common: 60, uncommon: 28, rare: w >= 3 ? 9 : 0, epic: w >= 8 ? 2.5 : 0, legendary: w >= 10 ? 0.6 : 0, mythical: w >= 15 ? 0.15 : 0 };
         if (boss) {
             wt.common = 10; wt.uncommon = 25;
-            wt.rare *= 4; wt.epic *= 4; wt.legendary *= 4;
+            wt.rare *= 4; wt.epic *= 4; wt.legendary *= 4; wt.mythical *= 4;
         }
         const total = Object.values(wt).reduce((a, b) => a + b, 0);
         let r = Math.random() * total;
@@ -748,7 +749,7 @@ export class Game {
         if (pool.length === 0) return;
         const item = pool[Math.floor(Math.random() * pool.length)];
         this.pickups.push({ x: x + (Math.random() - 0.5) * 16, y: y + (Math.random() - 0.5) * 8, item, age: 0 });
-        if (rarity === 'epic' || rarity === 'legendary') this.showBanner(item.name + '!');
+        if (['epic','legendary','mythical'].includes(rarity)) this.showBanner(item.name + '!');
     }
 
     rollDrop(u) {
@@ -797,7 +798,7 @@ export class Game {
             ctx.beginPath();
             ctx.ellipse(s.x, s.y, 7, 3, 0, 0, Math.PI * 2);
             ctx.fill();
-            drawItemIcon(ctx, Math.round(s.x) - 7, Math.round(s.y - 18 + bob), 14, p.item.slot, p.item.rarity);
+            drawItemIcon(ctx, Math.round(s.x) - 7, Math.round(s.y - 18 + bob), 14, p.item.slot, p.item.rarity,p.item.name);
         }
     }
 

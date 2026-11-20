@@ -4,10 +4,10 @@ class Item extends Model
     protected static string $table = 'items';
 
     public const SLOTS = ['weapon', 'armor', 'trinket'];
-    public const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+    public const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythical'];
     public const RARITY_COLORS = [
         'common' => '#c8cdd6', 'uncommon' => '#5fe07a', 'rare' => '#4aa3ff',
-        'epic' => '#b06bff', 'legendary' => '#ffa020',
+        'epic' => '#b06bff', 'legendary' => '#ffa020', 'mythical' => '#ff5ad2',
     ];
     private const STAT_LABELS = [
         'hp_pct' => 'HP', 'damage_pct' => 'damage', 'speed_pct' => 'speed',
@@ -74,7 +74,7 @@ class Item extends Model
     public static function catalog(): array
     {
         $rows = Database::getInstance()->fetchAll(
-            "SELECT * FROM items WHERE is_active = 1 ORDER BY FIELD(rarity,'common','uncommon','rare','epic','legendary'), slot, id"
+            "SELECT * FROM items WHERE is_active = 1 ORDER BY FIELD(rarity,'common','uncommon','rare','epic','legendary','mythical'), slot, id"
         );
         return array_map(fn($r) => static::fromRow($r)->toArray(), $rows);
     }
@@ -84,7 +84,7 @@ class Item extends Model
     {
         $cols = ['id', 'name', 'slot', 'rarity', 'hp_pct', 'damage_pct', 'cdr_pct', 'is_active'];
         $sort = in_array($sort, $cols, true) ? $sort : 'id';
-        $order = $sort === 'rarity' ? "FIELD(rarity,'common','uncommon','rare','epic','legendary')" : $sort;
+        $order = $sort === 'rarity' ? "FIELD(rarity,'common','uncommon','rare','epic','legendary','mythical')" : $sort;
         $dir = strtolower($dir) === 'desc' ? 'DESC' : 'ASC';
         $sql = 'SELECT * FROM items WHERE 1=1';
         $params = [];

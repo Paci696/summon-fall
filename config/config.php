@@ -2,7 +2,7 @@
 define('APP_NAME', 'Summon Fall');
 define('BASE_PATH', dirname(__DIR__));
 define('BASE_URL', '/summon-fall'); // '' for http://summon-fall.test ; use '/summonfall' for http://localhost/summonfall
-define('DEBUG', true);
+define('DEBUG', false);
 
 if (DEBUG) {
     ini_set('display_errors', '1');

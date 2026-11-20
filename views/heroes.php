@@ -120,24 +120,52 @@ $flash = $flash ?? null;
     .hp .go:hover { filter:brightness(1.1); transform:translateY(-1px); }
     .hp .ghost2 { background:transparent; color:#cfd0ff; border:2px solid #4a4a80; padding:5px 10px; cursor:pointer; font-size:.78rem; }
     .hp .ghost2:hover { background:#2a2a5a; }
-    /* equipment */
-    .slots { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
-    .slot { display:flex; gap:12px; align-items:center; background:var(--panel); border:2px dashed var(--line); padding:12px; min-height:88px; }
-    .slot.full { border-style:solid; box-shadow:3px 3px 0 var(--ink); }
-    .slot canvas, .icard canvas { width:56px; height:56px; flex:none; background:#0b0a1c; border:2px solid #20203c; }
-    .slot .nm { font-weight:bold; } .slot small { color:#a0a1c8; display:block; }
-    .rar { font:.5rem 'Press Start 2P', monospace; text-transform:uppercase; margin-bottom:4px; }
-    /* inventory */
-    .filters { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 12px; }
-    .filters button { background:#1c1c32; color:#cfd0ff; border:2px solid var(--line); padding:8px 12px; cursor:pointer; font:.55rem 'Press Start 2P', monospace; box-shadow:2px 2px 0 var(--ink); }
-    .filters button.on { background:var(--gold); color:#1a1424; border-color:var(--gold); }
-    .items { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px; }
-    .icard { display:flex; gap:10px; background:var(--panel); border:2px solid var(--line); padding:10px; box-shadow:3px 3px 0 var(--ink); }
-    .icard .info { flex:1; min-width:0; font-size:.85rem; }
-    .icard .info small { display:block; color:#a0a1c8; }
-    .icard .nm { font-weight:bold; }
-    .icard .btns { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
-    .icard form { margin:0; }
+    /* loadout */
+    .totals { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 12px; }
+    .tot { flex:1 1 90px; background:#10101f; border:2px solid var(--line); padding:7px 9px; }
+    .tot small { display:block; font:.45rem 'Press Start 2P', monospace; color:#8f90b8; letter-spacing:.05em; }
+    .tot b { font-size:1.05rem; color:#6fff9a; } .tot.zero b { color:#4a4a70; }
+    .sockets { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin-bottom:6px; }
+    .socket { position:relative; background:linear-gradient(180deg,#22224a,#12122a); border:2px solid var(--line); box-shadow:3px 3px 0 var(--ink); padding:10px; cursor:pointer; transition:transform .12s; }
+    .socket:hover { transform:translateY(-3px); }
+    .socket.sel { outline:2px solid #fff; outline-offset:2px; }
+    .socket .row { display:flex; gap:12px; align-items:center; }
+    .socket.empty { border-style:dashed; background:#0e0e22; }
+    .socket .tag { font:.5rem 'Press Start 2P', monospace; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+    .socket .nm { font-weight:bold; font-size:.9rem; } .socket small { display:block; color:#a0a1c8; margin-top:2px; }
+    .socket form { position:absolute; top:6px; right:6px; margin:0; }
+    .socket .x { background:#0b0a1c; color:#ff9a8a; border:2px solid #4a2a3a; width:24px; height:24px; cursor:pointer; font:bold 12px monospace; line-height:1; }
+    .socket .x:hover { background:#3a1c2c; }
+    .ico { flex:none; display:block; image-rendering:pixelated; }
+    .invwrap { display:grid; grid-template-columns:1fr 310px; gap:14px; align-items:start; }
+    @media (max-width:900px) { .invwrap { grid-template-columns:1fr; } .inspect { position:static !important; order:-1; } }
+    .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:0 0 10px; }
+    .toolbar .grp { display:flex; gap:0; }
+    .toolbar button, .toolbar select, .toolbar input { background:#1c1c32; color:#cfd0ff; border:2px solid var(--line); padding:7px 10px; cursor:pointer; font:.5rem 'Press Start 2P', monospace; }
+    .toolbar .grp button { margin-left:-2px; box-shadow:none; } .toolbar .grp button:first-child { margin-left:0; }
+    .toolbar button.on { background:var(--gold); color:#1a1424; border-color:var(--gold); position:relative; z-index:1; }
+    .toolbar input { cursor:text; font:.8rem monospace; width:140px; } .toolbar select { font:.75rem monospace; }
+    .rdots { display:flex; gap:5px; margin-left:auto; }
+    .rdot { width:20px; height:20px; border:2px solid; cursor:pointer; opacity:.35; background:transparent; padding:0; }
+    .rdot.on { opacity:1; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:10px; }
+    .tile { position:relative; background:#10101f; border:2px solid var(--line); padding:6px 6px 8px; cursor:pointer; text-align:center; transition:transform .1s; box-shadow:2px 2px 0 var(--ink); }
+    .tile:hover { transform:translateY(-3px); }
+    .tile.sel { outline:2px solid #fff; outline-offset:2px; }
+    .tile canvas { width:72px; height:72px; margin:0 auto; }
+    .tile .t { font-size:.68rem; margin-top:5px; line-height:1.15; height:2.3em; overflow:hidden; color:#e0e0f4; }
+    .tile .b { position:absolute; top:3px; left:3px; font:.4rem 'Press Start 2P', monospace; padding:3px 4px; background:#6fff9a; color:#0b2a14; z-index:2; }
+    .tile .b.o { background:#4a4a80; color:#d8d8ff; }
+    .tile .up { position:absolute; top:3px; right:4px; color:#6fff9a; font-size:.8rem; font-weight:bold; z-index:2; text-shadow:0 1px 0 #000; }
+    .inspect { position:sticky; top:12px; background:linear-gradient(180deg,#25254a,#12122a); border:2px solid var(--line); box-shadow:4px 4px 0 var(--ink); padding:14px; min-height:200px; }
+    .inspect .head { display:flex; gap:12px; align-items:center; margin-bottom:10px; }
+    .inspect .nm { font-weight:bold; font-size:1rem; } .inspect .desc { color:#b8b9de; font-size:.82rem; font-style:italic; margin:8px 0; }
+    .inspect .st { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #2a2a50; font-size:.85rem; }
+    .inspect .st .d { font-size:.72rem; margin-left:6px; } .up2 { color:#6fff9a; } .dn { color:#ff8a7a; }
+    .inspect .acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .inspect .go { flex:1; padding:11px 8px; font-size:.55rem; }
+    .inspect .hint { color:#8f90b8; text-align:center; padding:28px 8px; font-size:.85rem; }
+    .inspect .eqnote { color:#7fff9f; font-size:.78rem; margin-top:8px; }
     .empty-note { padding:18px; text-align:center; border:2px dashed var(--line); color:#9a9bc8; }
 </style>
 
@@ -211,73 +239,84 @@ $flash = $flash ?? null;
     </div>
 </div>
 
-<h2>Equipment</h2>
-<div class="slots">
+<h2>Loadout <small style="opacity:.6;text-transform:none">&middot; <?= htmlspecialchars($view->getName()) ?></small></h2>
+<?php $statLabels = ['hp_pct' => 'HP', 'damage_pct' => 'Damage', 'speed_pct' => 'Speed', 'cdr_pct' => 'Ability haste', 'lifesteal_pct' => 'Lifesteal']; ?>
+<div class="totals">
+    <?php foreach ($statLabels as $k => $lab): $v = (int) ($totals[$k] ?? 0); ?>
+        <div class="tot <?= $v ? '' : 'zero' ?>"><small><?= strtoupper($lab) ?></small><b>+<?= $v ?>%</b></div>
+    <?php endforeach; ?>
+</div>
+<div class="sockets">
     <?php foreach (Item::SLOTS as $slot): $e = $equipped[$slot] ?? null; ?>
-        <div class="slot <?= $e ? 'full' : '' ?>" style="<?= $e ? 'border-color:' . $colors[$e['rarity']] : '' ?>">
-            <canvas width="16" height="16" data-slot="<?= $slot ?>" data-rarity="<?= $e ? $e['rarity'] : 'empty' ?>"></canvas>
-            <div style="flex:1">
-                <?php if ($e): ?>
-                    <div class="rar" style="color:<?= $colors[$e['rarity']] ?>"><?= $e['rarity'] ?> <?= $slot ?></div>
-                    <div class="nm"><?= htmlspecialchars($e['name']) ?></div>
-                    <small><?= Item::statText($e) ?></small>
-                    <form method="post" style="margin-top:6px">
-                        <?= Csrf::field() ?>
-                        <input type="hidden" name="action" value="unequip">
-                        <input type="hidden" name="hero_id" value="<?= $view->getId() ?>">
-                        <input type="hidden" name="slot" value="<?= $slot ?>">
-                        <button class="ghost2" type="submit">Remove</button>
-                    </form>
-                <?php else: ?>
-                    <div class="rar" style="opacity:.6"><?= $slot ?></div>
-                    <div class="nm" style="opacity:.6">Empty slot</div>
-                <?php endif; ?>
+        <div class="socket <?= $e ? '' : 'empty' ?>" data-slot="<?= $slot ?>" <?= $e ? 'data-pid="' . (int) $e['player_item_id'] . '"' : '' ?> style="<?= $e ? 'border-color:' . $colors[$e['rarity']] : '' ?>" tabindex="0">
+            <div class="row">
+                <canvas class="ico" width="72" height="72" data-slot="<?= $slot ?>" data-rarity="<?= $e ? $e['rarity'] : 'empty' ?>" data-name="<?= $e ? htmlspecialchars($e['name']) : '' ?>" data-size="72"></canvas>
+                <div>
+                    <div class="tag" style="color:<?= $e ? $colors[$e['rarity']] : '#6a6a9a' ?>"><?= $e ? $e['rarity'] . ' ' : '' ?><?= $slot ?></div>
+                    <?php if ($e): ?>
+                        <div class="nm"><?= htmlspecialchars($e['name']) ?></div>
+                        <small><?= Item::statText($e) ?></small>
+                    <?php else: ?>
+                        <div class="nm" style="opacity:.55">Empty</div><small>Pick an item below</small>
+                    <?php endif; ?>
+                </div>
             </div>
+            <?php if ($e): ?>
+                <form method="post" title="Remove">
+                    <?= Csrf::field() ?>
+                    <input type="hidden" name="action" value="unequip">
+                    <input type="hidden" name="hero_id" value="<?= $view->getId() ?>">
+                    <input type="hidden" name="slot" value="<?= $slot ?>">
+                    <button class="x" type="submit" aria-label="Remove <?= $slot ?>">&times;</button>
+                </form>
+            <?php endif; ?>
         </div>
     <?php endforeach; ?>
 </div>
 
 <h2>Inventory <small style="opacity:.6">(<?= count($inventory) ?>)</small></h2>
 <?php if (!$inventory): ?>
-    <div class="empty-note">No items yet. Play Endless and defeat monsters and bosses to find some.</div>
+    <div class="empty-note">No items yet. Play Endless and defeat monsters and bosses to find some. Mythical items only drop from wave 15 on.</div>
 <?php else: ?>
-    <div class="filters">
-        <button type="button" class="on" data-f="all">All</button>
-        <?php foreach (Item::SLOTS as $slot): ?><button type="button" data-f="<?= $slot ?>"><?= ucfirst($slot) ?>s</button><?php endforeach; ?>
-    </div>
-    <div class="items">
-        <?php foreach ($inventory as $it): ?>
-            <div class="icard" data-slot="<?= $it['slot'] ?>" style="border-color:<?= $colors[$it['rarity']] ?>">
-                <canvas width="16" height="16" data-slot="<?= $it['slot'] ?>" data-rarity="<?= $it['rarity'] ?>"></canvas>
-                <div class="info">
-                    <div class="rar" style="color:<?= $colors[$it['rarity']] ?>"><?= $it['rarity'] ?> <?= $it['slot'] ?></div>
-                    <div class="nm"><?= htmlspecialchars($it['name']) ?></div>
-                    <small><?= Item::statText($it) ?></small>
-                    <?php if ($it['description']): ?><small><em><?= htmlspecialchars($it['description']) ?></em></small><?php endif; ?>
-                    <?php if ($it['equipped_hero_id'] !== null): ?><small style="color:#7fff9f">Equipped on hero #<?= (int) $it['equipped_hero_id'] ?></small><?php endif; ?>
-                    <div class="btns">
-                        <form method="post">
-                            <?= Csrf::field() ?>
-                            <input type="hidden" name="action" value="equip">
-                            <input type="hidden" name="hero_id" value="<?= $view->getId() ?>">
-                            <input type="hidden" name="player_item_id" value="<?= (int) $it['player_item_id'] ?>">
-                            <button class="ghost2" type="submit" style="border-color:#ffcf5a;color:#ffcf5a">Equip on <?= htmlspecialchars($view->getName()) ?></button>
-                        </form>
-                        <form method="post" onsubmit="return confirm('Discard this item?');">
-                            <?= Csrf::field() ?>
-                            <input type="hidden" name="action" value="discard">
-                            <input type="hidden" name="hero_id" value="<?= $view->getId() ?>">
-                            <input type="hidden" name="player_item_id" value="<?= (int) $it['player_item_id'] ?>">
-                            <button class="ghost2" type="submit">Discard</button>
-                        </form>
-                    </div>
+    <div class="invwrap">
+        <div>
+            <div class="toolbar">
+                <div class="grp" id="slotTabs">
+                    <button type="button" class="on" data-f="all">All</button>
+                    <?php foreach (Item::SLOTS as $slot): ?><button type="button" data-f="<?= $slot ?>"><?= ucfirst($slot) ?></button><?php endforeach; ?>
+                </div>
+                <select id="sortSel" aria-label="Sort">
+                    <option value="rarity">Best rarity</option><option value="name">Name</option><option value="stat">Strongest bonus</option>
+                </select>
+                <input id="q" type="search" placeholder="Search..." aria-label="Search items">
+                <div class="rdots" id="rdots">
+                    <?php foreach (Item::RARITIES as $r): ?><button type="button" class="rdot on" data-r="<?= $r ?>" title="<?= ucfirst($r) ?>" style="border-color:<?= $colors[$r] ?>;background:<?= $colors[$r] ?>55"></button><?php endforeach; ?>
                 </div>
             </div>
-        <?php endforeach; ?>
+            <div class="grid" id="grid"></div>
+            <div class="empty-note" id="noMatch" style="display:none">No items match these filters.</div>
+        </div>
+        <aside class="inspect" id="inspect"><div class="hint">Click an item to see its stats and compare it with what <?= htmlspecialchars($view->getName()) ?> is wearing.</div></aside>
     </div>
+    <form method="post" id="actForm" style="display:none">
+        <?= Csrf::field() ?>
+        <input type="hidden" name="action" id="fa"><input type="hidden" name="hero_id" value="<?= $view->getId() ?>">
+        <input type="hidden" name="player_item_id" id="fp"><input type="hidden" name="slot" id="fs">
+    </form>
 <?php endif; ?>
 </div>
 
+<?php
+$heroNames = [];
+foreach ($heroes as $h) { $heroNames[$h->getId()] = $h->getName(); }
+$stats = ['hp_pct' => 'HP', 'damage_pct' => 'Damage', 'speed_pct' => 'Speed', 'cdr_pct' => 'Ability haste', 'lifesteal_pct' => 'Lifesteal'];
+$eqJson = [];
+foreach ($equipped as $sl => $e) { $eqJson[$sl] = $e; }
+?>
+<script>
+window.LOADOUT = <?= json_encode(['items' => $inventory, 'equipped' => $eqJson, 'heroes' => $heroNames, 'hero' => $view->getId(), 'heroName' => $view->getName(),
+    'colors' => $colors, 'stats' => $stats, 'order' => Item::RARITIES], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+</script>
 <script type="module">
 import { getHeroSheet } from '<?= BASE_URL ?>/assets/js/game/HeroArt.js';
 import { drawItemIcon } from '<?= BASE_URL ?>/assets/js/game/ItemArt.js';
@@ -306,19 +345,101 @@ let last = 0, n = 0;
         a.an.draw(g, 24, 46, false, 1);
     }
 })(0);
-document.querySelectorAll('canvas[data-slot]').forEach((cv) => {
-    const g = cv.getContext('2d');
+// ---- loadout: icons, inventory grid, inspector ----
+const L = window.LOADOUT || { items: [], equipped: {}, colors: {}, stats: {}, order: [] };
+const iconCanvases = [];
+function paintIcon(cv) {
+    const size = +cv.dataset.size || 72, g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;
     if (cv.dataset.rarity === 'empty') {
-        g.fillStyle = '#14122a'; g.fillRect(0, 0, 16, 16);
-        g.fillStyle = '#3a3568'; g.fillRect(0, 0, 16, 1); g.fillRect(0, 15, 16, 1); g.fillRect(0, 0, 1, 16); g.fillRect(15, 0, 1, 16);
+        g.fillStyle = '#0e0e22'; g.fillRect(0, 0, size, size); g.strokeStyle = '#3a3568'; g.setLineDash([4, 4]); g.lineWidth = 2; g.strokeRect(2, 2, size - 4, size - 4);
+        g.setLineDash([]); g.fillStyle = '#3a3568'; g.font = 'bold ' + size / 2 + 'px monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('+', size / 2, size / 2 + 2);
         return;
     }
-    drawItemIcon(g, 0, 0, 16, cv.dataset.slot, cv.dataset.rarity);
-});
-document.querySelectorAll('.filters button').forEach((b) => b.addEventListener('click', () => {
-    document.querySelectorAll('.filters button').forEach((x) => x.classList.toggle('on', x === b));
-    document.querySelectorAll('.icard').forEach((c) => { c.style.display = (b.dataset.f === 'all' || c.dataset.slot === b.dataset.f) ? '' : 'none'; });
-}));
+    drawItemIcon(g, 0, 0, size, cv.dataset.slot, cv.dataset.rarity, cv.dataset.name, performance.now());
+}
+function mkIcon(slot, rarity, name, size) {
+    const cv = document.createElement('canvas'); cv.className = 'ico'; cv.width = cv.height = size;
+    cv.dataset.slot = slot; cv.dataset.rarity = rarity; cv.dataset.name = name; cv.dataset.size = size; paintIcon(cv); iconCanvases.push(cv); return cv;
+}
+document.querySelectorAll('canvas.ico').forEach((cv) => { paintIcon(cv); iconCanvases.push(cv); });
+(function shimmer() {                                   // epic+ icons twinkle; mythical frames cycle colour
+    requestAnimationFrame(shimmer);
+    for (const cv of iconCanvases) {
+        if (!cv.isConnected || !['epic', 'legendary', 'mythical'].includes(cv.dataset.rarity)) continue;
+        paintIcon(cv);
+    }
+})();
+
+const grid = document.getElementById('grid');
+if (grid) {
+    const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt !== undefined) e.textContent = txt; return e; };
+    const RK = (r) => L.order.indexOf(r);
+    const keys = Object.keys(L.stats);
+    const power = (it) => keys.reduce((a, k) => a + (+it[k] || 0), 0);
+    const st = { slot: 'all', sort: 'rarity', q: '', rar: new Set(L.order), sel: null };
+    const eqOf = (slot) => L.equipped[slot] || null;
+    const diffs = (it) => { const e = eqOf(it.slot); return keys.map((k) => ({ k, v: +it[k] || 0, d: (+it[k] || 0) - (e ? (+e[k] || 0) : 0) })); };
+    const isUpgrade = (it) => { const e = eqOf(it.slot); return it.equipped_hero_id == null && (!e || power(it) > power(e)); };
+
+    function render() {
+        let list = L.items.filter((it) => (st.slot === 'all' || it.slot === st.slot) && st.rar.has(it.rarity) && it.name.toLowerCase().includes(st.q));
+        list.sort((a, b) => st.sort === 'name' ? a.name.localeCompare(b.name) : st.sort === 'stat' ? power(b) - power(a) : (RK(b.rarity) - RK(a.rarity)) || power(b) - power(a));
+        grid.textContent = '';
+        list.forEach((it) => {
+            const t = el('div', 'tile' + (st.sel === it.player_item_id ? ' sel' : ''));
+            t.style.borderColor = L.colors[it.rarity];
+            t.appendChild(mkIcon(it.slot, it.rarity, it.name, 72));
+            t.appendChild(el('div', 't', it.name));
+            if (it.equipped_hero_id != null) t.appendChild(el('span', 'b' + (+it.equipped_hero_id === L.hero ? '' : ' o'), +it.equipped_hero_id === L.hero ? 'WORN' : (L.heroes[it.equipped_hero_id] || 'USED').slice(0, 6).toUpperCase()));
+            else if (isUpgrade(it)) t.appendChild(el('span', 'up', '\u25B2'));
+            t.addEventListener('click', () => { st.sel = it.player_item_id; render(); inspect(it); });
+            grid.appendChild(t);
+        });
+        document.getElementById('noMatch').style.display = list.length ? 'none' : '';
+        document.querySelectorAll('.socket').forEach((s) => s.classList.toggle('sel', st.slot === s.dataset.slot));
+    }
+    function inspect(it) {
+        const box = document.getElementById('inspect'); box.textContent = '';
+        const head = el('div', 'head'); head.appendChild(mkIcon(it.slot, it.rarity, it.name, 80));
+        const meta = el('div'); const tag = el('div', 'tag', it.rarity + ' ' + it.slot); tag.style.cssText = 'font:.5rem "Press Start 2P",monospace;text-transform:uppercase;margin-bottom:5px;color:' + L.colors[it.rarity];
+        meta.appendChild(tag); meta.appendChild(el('div', 'nm', it.name)); head.appendChild(meta); box.appendChild(head);
+        box.style.borderColor = L.colors[it.rarity];
+        if (it.description) box.appendChild(el('div', 'desc', it.description));
+        const worn = eqOf(it.slot), mine = +it.equipped_hero_id === L.hero;
+        if (!mine && worn) box.appendChild(el('div', 'hint2', '')).style.cssText = 'display:none';
+        diffs(it).filter((r) => r.v || (worn && +worn[r.k])).forEach((r) => {
+            const row = el('div', 'st'); row.appendChild(el('span', '', L.stats[r.k]));
+            const v = el('span', '', (r.v ? '+' + r.v + '%' : '0%'));
+            if (!mine && worn && r.d) { const d = el('span', 'd ' + (r.d > 0 ? 'up2' : 'dn'), (r.d > 0 ? '\u25B2 +' : '\u25BC ') + r.d); v.appendChild(d); }
+            row.appendChild(v); box.appendChild(row);
+        });
+        if (!mine && worn) box.appendChild(el('div', 'eqnote', 'Compared with ' + worn.name)).style.color = '#9a9bc8';
+        if (it.equipped_hero_id != null && !mine) box.appendChild(el('div', 'eqnote', 'Worn by ' + (L.heroes[it.equipped_hero_id] || 'another hero') + ' (equipping moves it)'));
+        const acts = el('div', 'acts');
+        const submit = (a) => { document.getElementById('fa').value = a; document.getElementById('fp').value = it.player_item_id; document.getElementById('fs').value = it.slot; document.getElementById('actForm').submit(); };
+        const b1 = el('button', 'go', mine ? 'REMOVE' : 'EQUIP ON ' + L.heroName.toUpperCase()); b1.type = 'button';
+        if (mine) { b1.style.background = '#3a3a6a'; b1.style.color = '#fff'; b1.style.boxShadow = '0 4px 0 #1a1a3a'; }
+        b1.addEventListener('click', () => submit(mine ? 'unequip' : 'equip')); acts.appendChild(b1);
+        if (!mine) { const b2 = el('button', 'ghost2', 'Discard'); b2.type = 'button'; b2.addEventListener('click', () => { if (confirm('Discard ' + it.name + '? This cannot be undone.')) submit('discard'); }); acts.appendChild(b2); }
+        box.appendChild(acts);
+    }
+    document.querySelectorAll('#slotTabs button').forEach((b) => b.addEventListener('click', () => {
+        st.slot = b.dataset.f; document.querySelectorAll('#slotTabs button').forEach((x) => x.classList.toggle('on', x === b)); render();
+    }));
+    document.querySelectorAll('.rdot').forEach((b) => b.addEventListener('click', () => {
+        const r = b.dataset.r; if (st.rar.has(r)) st.rar.delete(r); else st.rar.add(r); b.classList.toggle('on', st.rar.has(r)); render();
+    }));
+    document.getElementById('sortSel').addEventListener('change', (e) => { st.sort = e.target.value; render(); });
+    document.getElementById('q').addEventListener('input', (e) => { st.q = e.target.value.trim().toLowerCase(); render(); });
+    document.querySelectorAll('.socket').forEach((s) => s.addEventListener('click', (e) => {
+        if (e.target.closest('form')) return;
+        st.slot = s.dataset.slot; document.querySelectorAll('#slotTabs button').forEach((x) => x.classList.toggle('on', x.dataset.f === st.slot));
+        const it = L.items.find((i) => String(i.player_item_id) === s.dataset.pid);
+        if (it) st.sel = it.player_item_id;
+        render(); if (it) inspect(it); else document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }));
+    render();
+}
 </script>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 18, 2026 at 07:09 PM
+-- Generation Time: Nov 20, 2026 at 07:08 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.33
 
@@ -21,6 +21,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `summon_fall`
 --
+CREATE DATABASE IF NOT EXISTS `summon_fall` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `summon_fall`;
 
 -- --------------------------------------------------------
 
@@ -114,9 +116,29 @@ CREATE TABLE `hero_equipment` (
 --
 
 INSERT INTO `hero_equipment` (`user_id`, `hero_id`, `slot`, `player_item_id`) VALUES
-(1, 2, 'trinket', 1),
-(1, 2, 'armor', 2),
-(1, 2, 'weapon', 3);
+(1, 4, 'trinket', 1),
+(1, 4, 'weapon', 18),
+(1, 4, 'armor', 26);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hero_xp`
+--
+
+DROP TABLE IF EXISTS `hero_xp`;
+CREATE TABLE `hero_xp` (
+  `user_id` int NOT NULL,
+  `hero_id` int NOT NULL,
+  `xp` int NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `hero_xp`
+--
+
+INSERT INTO `hero_xp` (`user_id`, `hero_id`, `xp`) VALUES
+(1, 4, 39);
 
 -- --------------------------------------------------------
 
@@ -129,7 +151,7 @@ CREATE TABLE `items` (
   `id` int NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `slot` enum('weapon','armor','trinket') COLLATE utf8mb4_general_ci NOT NULL,
-  `rarity` enum('common','uncommon','rare','epic','legendary') COLLATE utf8mb4_general_ci NOT NULL,
+  `rarity` enum('common','uncommon','rare','epic','legendary','mythical') COLLATE utf8mb4_general_ci NOT NULL,
   `description` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
   `hp_pct` int NOT NULL DEFAULT '0',
   `damage_pct` int NOT NULL DEFAULT '0',
@@ -158,7 +180,39 @@ INSERT INTO `items` (`id`, `name`, `slot`, `rarity`, `description`, `hp_pct`, `d
 (12, 'Silver Ring', 'trinket', 'uncommon', '', 0, 0, 0, 8, 0, 1),
 (13, 'Glowstone', 'trinket', 'rare', '', 0, 0, 0, 12, 0, 1),
 (14, 'Moon Amulet', 'trinket', 'epic', '', 0, 0, 0, 16, 0, 1),
-(15, 'Heart of Summon', 'trinket', 'legendary', 'Power flows faster through you.', 0, 0, 0, 22, 0, 1);
+(15, 'Heart of Summon', 'trinket', 'legendary', 'Power flows faster through you.', 0, 0, 0, 22, 0, 1),
+(16, 'Hunting Knife', 'weapon', 'common', 'Quick but small.', 0, 4, 2, 0, 0, 1),
+(17, 'Splintered Club', 'weapon', 'common', '', 0, 6, 0, 0, 0, 1),
+(18, 'Steel Saber', 'weapon', 'uncommon', '', 0, 9, 3, 0, 0, 1),
+(19, 'Hunter\'s Fang', 'weapon', 'uncommon', 'Bites back.', 0, 8, 0, 0, 2, 1),
+(20, 'Frostbrand', 'weapon', 'rare', 'Cold to the touch.', 0, 14, 4, 0, 0, 1),
+(21, 'Stormcaller Blade', 'weapon', 'rare', 'Crackles before every swing.', 0, 13, 0, 6, 0, 1),
+(22, 'Voidpiercer', 'weapon', 'epic', 'Cuts through the dark.', 0, 22, 0, 0, 4, 1),
+(23, 'Emberfang', 'weapon', 'epic', 'Still warm from the forge.', 6, 25, 0, 0, 0, 1),
+(24, 'Sunforged Edge', 'weapon', 'legendary', 'Forged in the heart of a star.', 0, 32, 0, 10, 0, 1),
+(25, 'Eclipse, Blade of the Last Dawn', 'weapon', 'mythical', 'The light of a dying sun, made steel.', 0, 48, 0, 8, 10, 1),
+(26, 'Worldsplitter Aeon', 'weapon', 'mythical', 'It remembers every war.', 0, 55, 6, 0, 6, 1),
+(27, 'Torn Tunic', 'armor', 'common', '', 6, 0, 1, 0, 0, 1),
+(28, 'Scout\'s Cloak', 'armor', 'uncommon', 'Light and quiet.', 8, 0, 5, 0, 0, 1),
+(29, 'Studded Jerkin', 'armor', 'uncommon', '', 13, 0, 2, 0, 0, 1),
+(30, 'Runed Hauberk', 'armor', 'rare', 'Runes hum when you fight.', 20, 0, 0, 5, 0, 1),
+(31, 'Warden\'s Brigandine', 'armor', 'rare', '', 26, 3, 0, 0, 0, 1),
+(32, 'Obsidian Plate', 'armor', 'epic', '', 32, 6, 0, 0, 0, 1),
+(33, 'Shadowweave', 'armor', 'epic', 'Woven from the space between torches.', 26, 0, 8, 0, 0, 1),
+(34, 'Phoenix Mantle', 'armor', 'legendary', 'Burns, never burns out.', 45, 0, 0, 6, 4, 1),
+(35, 'Aegis of the Fallen Star', 'armor', 'mythical', 'Fell from the sky and stayed.', 75, 10, 5, 0, 0, 1),
+(36, 'Wraith of Eternity', 'armor', 'mythical', 'Death politely declines.', 65, 0, 0, 10, 8, 1),
+(37, 'Lucky Coin', 'trinket', 'common', 'Heads, you win.', 0, 0, 0, 5, 0, 1),
+(38, 'Bone Whistle', 'trinket', 'common', '', 0, 0, 1, 3, 0, 1),
+(39, 'Jade Pendant', 'trinket', 'uncommon', '', 4, 0, 0, 7, 0, 1),
+(40, 'Copper Signet', 'trinket', 'uncommon', '', 0, 3, 0, 6, 0, 1),
+(41, 'Ember Locket', 'trinket', 'rare', '', 0, 4, 0, 10, 0, 1),
+(42, 'Sage\'s Eye', 'trinket', 'rare', 'Sees the next move.', 6, 0, 0, 11, 0, 1),
+(43, 'Void Shard', 'trinket', 'epic', '', 0, 8, 0, 14, 0, 1),
+(44, 'Blood Rosary', 'trinket', 'epic', '', 0, 0, 0, 12, 5, 1),
+(45, 'Phoenix Feather', 'trinket', 'legendary', '', 12, 0, 0, 20, 0, 1),
+(46, 'Eye of the Archon', 'trinket', 'mythical', 'It never blinks.', 12, 12, 0, 30, 0, 1),
+(47, 'Crown of Stars', 'trinket', 'mythical', 'Worn by no king.', 18, 0, 0, 26, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -177,7 +231,7 @@ CREATE TABLE `player_hero` (
 --
 
 INSERT INTO `player_hero` (`user_id`, `hero_id`) VALUES
-(1, 5);
+(1, 4);
 
 -- --------------------------------------------------------
 
@@ -200,7 +254,36 @@ CREATE TABLE `player_items` (
 INSERT INTO `player_items` (`id`, `user_id`, `item_id`, `obtained_at`) VALUES
 (1, 1, 12, '2026-11-17 21:12:59'),
 (2, 1, 6, '2026-11-17 21:12:59'),
-(3, 1, 2, '2026-11-17 21:12:59');
+(3, 1, 2, '2026-11-17 21:12:59'),
+(4, 1, 11, '2026-11-18 23:46:00'),
+(5, 1, 11, '2026-11-18 23:46:00'),
+(6, 1, 1, '2026-11-18 23:46:00'),
+(7, 1, 1, '2026-11-18 23:46:00'),
+(8, 1, 7, '2026-11-18 23:46:00'),
+(9, 1, 8, '2026-11-18 23:46:00'),
+(10, 1, 6, '2026-11-18 23:46:00'),
+(11, 1, 12, '2026-11-18 23:46:00'),
+(12, 1, 11, '2026-11-18 23:46:00'),
+(13, 1, 1, '2026-11-18 23:46:00'),
+(14, 1, 1, '2026-11-18 23:46:00'),
+(15, 1, 1, '2026-11-18 23:46:00'),
+(16, 1, 1, '2026-11-18 23:46:00'),
+(17, 1, 2, '2026-11-18 23:46:00'),
+(18, 1, 4, '2026-11-18 23:46:00'),
+(19, 1, 3, '2026-11-18 23:46:00'),
+(20, 1, 1, '2026-11-18 23:46:00'),
+(21, 1, 7, '2026-11-18 23:46:00'),
+(22, 1, 2, '2026-11-18 23:46:00'),
+(23, 1, 2, '2026-11-18 23:46:00'),
+(24, 1, 1, '2026-11-18 23:46:00'),
+(25, 1, 4, '2026-11-18 23:46:00'),
+(26, 1, 9, '2026-11-18 23:46:00'),
+(27, 1, 2, '2026-11-18 23:46:00'),
+(28, 1, 7, '2026-11-18 23:46:00'),
+(29, 1, 6, '2026-11-18 23:46:00'),
+(30, 1, 11, '2026-11-18 23:46:00'),
+(31, 1, 11, '2026-11-18 23:46:00'),
+(32, 1, 12, '2026-11-18 23:46:00');
 
 -- --------------------------------------------------------
 
@@ -220,14 +303,11 @@ CREATE TABLE `player_loadout` (
 --
 
 INSERT INTO `player_loadout` (`user_id`, `slot`, `unit_id`) VALUES
-(1, 2, 2),
-(1, 3, 3),
-(1, 4, 4),
-(1, 1, 9),
-(1, 5, 10),
-(1, 6, 11),
-(1, 7, 12),
-(1, 8, 17);
+(1, 1, 13),
+(1, 2, 14),
+(1, 3, 15),
+(1, 4, 16),
+(1, 5, 19);
 
 -- --------------------------------------------------------
 
@@ -261,16 +341,49 @@ INSERT INTO `player_skills` (`user_id`, `skill_id`, `level`) VALUES
 (1, 13, 1),
 (1, 14, 1),
 (1, 15, 1),
-(1, 23, 1),
+(1, 16, 1),
+(1, 17, 1),
+(1, 18, 1),
+(1, 19, 1),
+(1, 20, 5),
+(1, 21, 3),
+(1, 22, 5),
+(1, 23, 5),
+(1, 24, 5),
 (1, 25, 3),
-(1, 26, 1),
+(1, 26, 5),
+(1, 27, 5),
+(1, 28, 3),
+(1, 29, 5),
+(1, 30, 5),
+(1, 31, 3),
+(1, 32, 5),
+(1, 33, 3),
+(1, 34, 5),
+(1, 35, 5),
+(1, 36, 5),
+(1, 37, 3),
+(1, 38, 5),
+(1, 39, 5),
+(1, 40, 3),
+(1, 41, 5),
+(1, 42, 5),
+(1, 43, 3),
 (1, 44, 5),
 (1, 45, 5),
 (1, 46, 3),
 (1, 47, 5),
-(1, 48, 3),
-(1, 49, 3),
-(1, 50, 1),
+(1, 48, 5),
+(1, 49, 5),
+(1, 50, 3),
+(1, 51, 1),
+(1, 52, 1),
+(1, 53, 5),
+(1, 54, 5),
+(1, 55, 3),
+(1, 56, 5),
+(1, 57, 5),
+(1, 58, 3),
 (1, 59, 1),
 (1, 60, 5),
 (1, 61, 3),
@@ -278,7 +391,19 @@ INSERT INTO `player_skills` (`user_id`, `skill_id`, `level`) VALUES
 (1, 66, 5),
 (1, 69, 5),
 (1, 72, 4),
-(1, 75, 3);
+(1, 75, 4),
+(1, 77, 5),
+(1, 78, 5),
+(1, 79, 5),
+(1, 80, 5),
+(1, 81, 4),
+(1, 82, 4),
+(1, 84, 5),
+(1, 93, 3),
+(1, 94, 3),
+(1, 95, 5),
+(1, 96, 3),
+(1, 97, 3);
 
 -- --------------------------------------------------------
 
@@ -306,7 +431,9 @@ CREATE TABLE `scores` (
 INSERT INTO `scores` (`id`, `user_id`, `map_id`, `score`, `waves_reached`, `kills`, `souls_earned`, `duration_sec`, `played_at`) VALUES
 (1, 1, 1, 113, 1, 3, 1, 58, '2026-11-11 20:45:06'),
 (2, 1, 2, 8419, 22, 243, 384, 913, '2026-11-17 16:45:06'),
-(4, 1, 1, 814, 5, 23, 24, 554, '2026-11-17 21:12:59');
+(4, 1, 1, 814, 5, 23, 24, 554, '2026-11-17 21:12:59'),
+(5, 1, 1, 31494, 38, 835, 2176, 2105, '2026-11-18 23:46:00'),
+(6, 1, 1, 113, 1, 3, 3, 39, '2026-11-19 20:17:28');
 
 -- --------------------------------------------------------
 
@@ -427,7 +554,12 @@ INSERT INTO `skills` (`id`, `name`, `description`, `branch`, `tier`, `parent_ski
 (88, 'Necromancer Grave Horde', 'Control more undead at once (+1 per level).', 'hero', 3, NULL, NULL, 'horde', 1.00, 80, 1.50, 5, NULL, 0, NULL, 5),
 (89, 'Necromancer Spellpower', 'Abilities hit harder and undead are stronger.', 'hero', 3, NULL, NULL, 'ability', 8.00, 60, 1.50, 5, NULL, 0, NULL, 5),
 (90, 'Necromancer Swiftness', 'Move faster.', 'hero', 4, NULL, NULL, 'speed', 4.00, 50, 1.50, 4, NULL, 0, NULL, 5),
-(91, 'Necromancer Resolve', 'Revive sooner after dying.', 'hero', 4, NULL, NULL, 'revive', 6.00, 80, 1.50, 4, NULL, 0, NULL, 5);
+(91, 'Necromancer Resolve', 'Revive sooner after dying.', 'hero', 4, NULL, NULL, 'revive', 6.00, 80, 1.50, 4, NULL, 0, NULL, 5),
+(93, 'Blizzard', 'Spell (B): a freezing storm slows and damages enemies', 'summoner', 4, 10, NULL, 'spell_frost', 1.00, 40, 2.00, 3, NULL, 0, NULL, NULL),
+(94, 'Healing Rain', 'Spell (H): heals your army standing in the rain', 'summoner', 4, 10, NULL, 'spell_heal', 1.00, 40, 2.00, 3, NULL, 0, NULL, NULL),
+(95, 'Arcane Mastery', 'All spells recharge 6% faster per level', 'summoner', 4, 10, NULL, 'spell_cdr', 6.00, 35, 1.60, 5, NULL, 0, NULL, NULL),
+(96, 'War Horn', 'Spell (U): your whole army hits harder and moves faster', 'summoner', 5, 94, NULL, 'spell_rally', 1.00, 60, 2.00, 3, NULL, 0, NULL, NULL),
+(97, 'Lightning Storm', 'Spell (I): bolts from the sky strike random enemies', 'summoner', 5, 93, NULL, 'spell_storm', 1.00, 60, 2.00, 3, NULL, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -506,7 +638,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `role`, `souls`, `created_at`) VALUES
-(1, 'admin', 'admin@summonfall.test', '$2y$10$og0f/b6feaN8hqlJE8Z6X.iWFcOk/wBGrqedqjKLQikZxtHTBDDTG', 'admin', 45, '2026-11-09 20:52:11');
+(1, 'admin', 'admin@summonfall.test', '$2y$10$og0f/b6feaN8hqlJE8Z6X.iWFcOk/wBGrqedqjKLQikZxtHTBDDTG', 'admin', 467017, '2026-11-09 20:52:11');
 
 --
 -- Indexes for dumped tables
@@ -533,6 +665,12 @@ ALTER TABLE `hero_equipment`
   ADD PRIMARY KEY (`user_id`,`hero_id`,`slot`),
   ADD UNIQUE KEY `uq_item` (`player_item_id`),
   ADD KEY `hero_id` (`hero_id`);
+
+--
+-- Indexes for table `hero_xp`
+--
+ALTER TABLE `hero_xp`
+  ADD PRIMARY KEY (`user_id`,`hero_id`);
 
 --
 -- Indexes for table `items`
@@ -621,25 +759,25 @@ ALTER TABLE `hero_abilities`
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `player_items`
 --
 ALTER TABLE `player_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `scores`
 --
 ALTER TABLE `scores`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `skills`
 --
 ALTER TABLE `skills`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
 
 --
 -- AUTO_INCREMENT for table `units`

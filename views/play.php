@@ -36,12 +36,12 @@ $config = ['heroLevel' => $heroLevel, 'heroXp' => $heroXp, 'heroName' => $heroNa
         #menuBtn:hover { background: #ffcf5a; color: #1a1424 !important; }
     </style>
     <script>
-        (function () {   // sits just under the top-left resource panel, scaled with the game canvas
+        (function () {   // sits under the top-left resource panel, scaled with the game canvas
             const cv = document.getElementById('game'), b = document.getElementById('menuBtn');
             function place() {
                 const r = cv.getBoundingClientRect(), k = r.width / 960;
                 b.style.left = Math.round(r.left + 4 * k) + 'px';
-                b.style.top = Math.round(r.top + 62 * k) + 'px';
+                b.style.top = Math.round(r.top + 76 * k) + 'px';
                 b.style.transform = 'scale(' + Math.max(0.8, Math.min(1.4, k * 0.75)) + ')';
                 b.style.transformOrigin = 'top left';
             }

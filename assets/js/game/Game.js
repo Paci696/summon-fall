@@ -10,7 +10,7 @@ import { Base } from './Base.js';
 import { GoldMine } from './GoldMine.js';
 import { Effects } from './Effects.js';
 import { SummonBar } from './SummonBar.js';
-import { StanceBar } from './StanceBar.js';
+import { StanceBar } from './Stancebar.js';
 import { Pathfinder } from './Pathfinder.js';
 import { WaveSpawner } from './WaveSpawner.js';
 import { DayNight } from './DayNight.js';
@@ -26,6 +26,7 @@ import { getHeroSheet } from './HeroArt.js';
 import { drawItemIcon, RARITY_COLORS } from './ItemArt.js';
 import { drawModernHud } from './ModernHud.js';
 import { updateGeneralSpells } from './GeneralSpells.js';
+import { drawModernHeroPanel, drawModernMeteor } from './HudWidgets.js';
 
 const RAISE_RANGE = 260;      // Necromancer: kills this close to you can rise
 const RAISE_RUN_CAP = 40;     // most undead you can raise in one run
@@ -620,6 +621,7 @@ export class Game {
     }
 
     drawHeroPanel(ctx) {
+        if (drawModernHeroPanel(this, ctx)) return;
         if (!this.heroData || this.gameOver) return;
         const r = this.heroRect();
         const h = this.heroUnit;
@@ -1239,7 +1241,7 @@ export class Game {
         ctx.fillText('V Sound ' + (this.sfx.muted ? 'off' : 'on'), VIEW_W - 8, 72);
     }
     drawMeteorHud(ctx) {
-        
+        if (drawModernMeteor(this, ctx)) return;
         const locked = this.meteorLevel <= 0;
         const { x, y, w, h } = this.meteorRect();
         const ready = !locked && this.meteorCooldown <= 0;
